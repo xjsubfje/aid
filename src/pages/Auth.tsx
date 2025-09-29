@@ -94,7 +94,7 @@ const Auth = () => {
             </div>
           </div>
           <CardTitle className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-            Virtual Assistant
+            Welcome to Your Virtual Assistant
           </CardTitle>
           <CardDescription>
             {isLogin ? "Welcome back! Sign in to continue." : "Create your account to get started."}
