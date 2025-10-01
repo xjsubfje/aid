@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Plus, Trash2, Check, Calendar } from "lucide-react";
 import { format } from "date-fns";
+import { scheduleReminder } from "@/lib/notifications";
 
 interface Task {
   id: string;
@@ -73,10 +74,22 @@ const Tasks = () => {
         description: error.message,
       });
     } else {
-      toast({
-        title: "Task added",
-        description: "Your task has been created successfully.",
-      });
+      // Schedule notification if due date is set
+      if (dueDate) {
+        const dueDateObj = new Date(dueDate);
+        scheduleReminder(title, description, dueDateObj);
+        
+        toast({
+          title: "Task added with reminder",
+          description: "You'll be notified when this task is due!",
+        });
+      } else {
+        toast({
+          title: "Task added",
+          description: "Your task has been created successfully.",
+        });
+      }
+      
       setTitle("");
       setDescription("");
       setDueDate("");

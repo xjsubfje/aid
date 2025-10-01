@@ -6,7 +6,6 @@ import { Loader2 } from "lucide-react";
 
 const Index = () => {
   const [loading, setLoading] = useState(true);
-  const [username, setUsername] = useState<string>();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -33,16 +32,6 @@ const Index = () => {
       return;
     }
 
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("username")
-      .eq("id", session.user.id)
-      .single();
-
-    if (profile) {
-      setUsername(profile.username);
-    }
-
     setLoading(false);
   };
 
@@ -54,7 +43,7 @@ const Index = () => {
     );
   }
 
-  return <Dashboard username={username} />;
+  return <Dashboard />;
 };
 
 export default Index;

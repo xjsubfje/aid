@@ -1,35 +1,45 @@
 import { useState, useRef, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
-import { Send, Mic, CheckSquare, Settings as SettingsIcon, MessageSquare, Sparkles } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { Send, Mic, Settings, ListTodo, MessageSquare, LogOut, Bell } from "lucide-react";
+import { Button } from "./ui/button";
+import { Textarea } from "./ui/textarea";
+import { ScrollArea } from "./ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { Avatar, AvatarFallback } from "./ui/avatar";
+import { requestNotificationPermission } from "@/lib/notifications";
 
 interface Message {
   role: "user" | "assistant";
   content: string;
 }
 
-interface ChatInterfaceProps {
-  username?: string;
-}
-
-const ChatInterface = ({ username }: ChatInterfaceProps) => {
+const ChatInterface = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [userEmail, setUserEmail] = useState("");
+  const scrollRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  useEffect(() => {
+    const getUserEmail = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUserEmail(user.email || "");
+      }
+    };
+    getUserEmail();
+    
+    // Request notification permission on mount
+    requestNotificationPermission();
+  }, []);
 
   useEffect(() => {
-    scrollToBottom();
+    if (scrollRef.current) {
+      scrollRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
+    }
   }, [messages]);
 
   const streamChat = async (userMessage: string) => {
@@ -53,7 +63,7 @@ const ChatInterface = ({ username }: ChatInterfaceProps) => {
           toast({
             variant: "destructive",
             title: "Rate limit exceeded",
-            description: "Please try again in a moment.",
+            description: "Please try again later.",
           });
           return;
         }
@@ -131,185 +141,248 @@ const ChatInterface = ({ username }: ChatInterfaceProps) => {
     setInput("");
   };
 
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+
   const handleQuickAction = (action: string) => {
-    streamChat(action);
+    setInput(action);
+  };
+
+  const suggestions = [
+    "What's the weather like?",
+    "Set a reminder for tomorrow at 9am",
+    "Create a task to buy groceries",
+    "What's on my task list?",
+  ];
+
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to log out. Please try again.",
+        variant: "destructive",
+      });
+    } else {
+      navigate("/auth");
+    }
+  };
+
+  const handleEnableNotifications = async () => {
+    const granted = await requestNotificationPermission();
+    if (granted) {
+      toast({
+        title: "Notifications Enabled",
+        description: "You'll receive reminders for your tasks!",
+      });
+    } else {
+      toast({
+        title: "Notifications Blocked",
+        description: "Please enable notifications in your browser settings.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex h-screen bg-background relative overflow-hidden">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-[120px] animate-float"></div>
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent/20 rounded-full blur-[120px] animate-float" style={{ animationDelay: "1s" }}></div>
+      </div>
+
       {/* Sidebar */}
-      <div className="w-64 bg-card/50 border-r border-border/50 backdrop-blur-sm flex flex-col">
-        <div className="p-4 border-b border-border/50">
-          <div className="flex items-center gap-2 mb-4">
-            <div className="p-2 rounded-lg bg-gradient-primary">
-              <Sparkles className="h-5 w-5 text-primary-foreground" />
-            </div>
-            <div>
-              <h2 className="font-bold text-sm">Virtual Assistant</h2>
-              <p className="text-xs text-muted-foreground">{username}</p>
+      <div className="relative w-72 border-r border-border/50 bg-gradient-to-b from-card/80 to-card/40 backdrop-blur-2xl p-6 flex flex-col">
+        {/* User Profile Section */}
+        <div className="mb-8 p-4 rounded-2xl bg-gradient-to-br from-primary/10 to-accent/10 border border-primary/20">
+          <div className="flex items-center gap-3 mb-4">
+            <Avatar className="h-12 w-12 ring-2 ring-primary/50">
+              <AvatarFallback className="bg-gradient-primary text-primary-foreground">
+                {userEmail ? userEmail[0].toUpperCase() : "U"}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium truncate">{userEmail || "User"}</p>
+              <p className="text-xs text-muted-foreground">Active</p>
             </div>
           </div>
+          <Button
+            onClick={handleLogout}
+            variant="outline"
+            size="sm"
+            className="w-full border-primary/30 hover:bg-primary/10"
+          >
+            <LogOut className="w-4 h-4 mr-2" />
+            Logout
+          </Button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          <div>
-            <h3 className="text-xs font-semibold text-muted-foreground mb-2 uppercase tracking-wider">
-              Quick Access
-            </h3>
-            <div className="space-y-1">
-              <Button
-                variant="ghost"
-                className="w-full justify-start text-sm"
-                onClick={() => navigate("/tasks")}
-              >
-                <CheckSquare className="mr-2 h-4 w-4" />
-                Tasks
-              </Button>
-              <Button
-                variant="ghost"
-                className="w-full justify-start text-sm"
-                onClick={() => navigate("/voice")}
-              >
-                <Mic className="mr-2 h-4 w-4" />
-                Voice Commands
-              </Button>
-              <Button
-                variant="ghost"
-                className="w-full justify-start text-sm"
-                onClick={() => navigate("/settings")}
-              >
-                <SettingsIcon className="mr-2 h-4 w-4" />
-                Settings
-              </Button>
-            </div>
-          </div>
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent animate-gradient">
+            Virtual Assistant
+          </h1>
+          <p className="text-xs text-muted-foreground mt-1">Your AI-powered companion</p>
+        </div>
 
-          <div>
-            <h3 className="text-xs font-semibold text-muted-foreground mb-2 uppercase tracking-wider">
-              Suggestions
-            </h3>
-            <div className="space-y-1">
-              {["Set a reminder", "Check weather", "Latest news", "Help me plan"].map((query) => (
-                <Button
-                  key={query}
-                  variant="ghost"
-                  className="w-full justify-start text-sm text-muted-foreground hover:text-foreground"
-                  onClick={() => handleQuickAction(query)}
-                >
-                  <MessageSquare className="mr-2 h-3 w-3" />
-                  {query}
-                </Button>
-              ))}
-            </div>
-          </div>
+        <nav className="space-y-2 flex-1">
+          <Button
+            variant="ghost"
+            className="w-full justify-start group hover:bg-primary/10 transition-all"
+            onClick={() => navigate("/tasks")}
+          >
+            <ListTodo className="mr-2 h-4 w-4 group-hover:text-primary transition-colors" />
+            Tasks
+          </Button>
+          <Button
+            variant="ghost"
+            className="w-full justify-start group hover:bg-primary/10 transition-all"
+            onClick={() => navigate("/voice")}
+          >
+            <MessageSquare className="mr-2 h-4 w-4 group-hover:text-primary transition-colors" />
+            Voice Commands
+          </Button>
+          <Button
+            variant="ghost"
+            className="w-full justify-start group hover:bg-primary/10 transition-all"
+            onClick={() => navigate("/settings")}
+          >
+            <Settings className="mr-2 h-4 w-4 group-hover:text-primary transition-colors" />
+            Settings
+          </Button>
+          <Button
+            variant="ghost"
+            className="w-full justify-start group hover:bg-accent/10 transition-all"
+            onClick={handleEnableNotifications}
+          >
+            <Bell className="mr-2 h-4 w-4 group-hover:text-accent transition-colors" />
+            Notifications
+          </Button>
+        </nav>
+
+        <div className="mt-auto space-y-2 p-4 bg-gradient-secondary rounded-2xl border border-primary/10">
+          <p className="text-sm font-semibold mb-3 text-primary">Quick Actions</p>
+          {suggestions.map((suggestion, idx) => (
+            <button
+              key={idx}
+              onClick={() => setInput(suggestion)}
+              className="text-xs text-left w-full p-3 rounded-xl bg-background/30 hover:bg-background/60 border border-border/50 hover:border-primary/30 transition-all duration-200 hover:scale-[1.02]"
+            >
+              {suggestion}
+            </button>
+          ))}
         </div>
       </div>
 
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col">
-        {/* Chat Messages */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-4">
-          {messages.length === 0 ? (
-            <div className="flex items-center justify-center h-full">
-              <div className="text-center space-y-4 max-w-md">
-                <div className="p-4 rounded-full bg-gradient-primary w-fit mx-auto">
-                  <Sparkles className="h-12 w-12 text-primary-foreground" />
+      <div className="relative flex-1 flex flex-col">
+        <ScrollArea className="flex-1 p-8" ref={scrollRef}>
+          <div className="max-w-4xl mx-auto space-y-8">
+            {messages.length === 0 && (
+              <div className="text-center py-32">
+                <div className="inline-block p-4 rounded-3xl bg-gradient-primary mb-6 shadow-glow">
+                  <MessageSquare className="w-16 h-16 text-primary-foreground" />
                 </div>
-                <h2 className="text-2xl font-bold">How can I assist you today?</h2>
-                <p className="text-muted-foreground">
-                  Ask me anything - from setting reminders to answering questions!
+                <h2 className="text-5xl font-bold mb-4 bg-gradient-primary bg-clip-text text-transparent animate-gradient">
+                  How can I assist you today?
+                </h2>
+                <p className="text-muted-foreground text-lg">
+                  I'm your AI-powered companion, ready to help with tasks, reminders, and more.
                 </p>
               </div>
-            </div>
-          ) : (
-            messages.map((message, index) => (
+            )}
+
+            {messages.map((message, idx) => (
               <div
-                key={index}
-                className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
+                key={idx}
+                className={`flex gap-4 ${
+                  message.role === "user" ? "justify-end" : "justify-start"
+                } animate-in fade-in slide-in-from-bottom-4 duration-500`}
               >
-                <Card
-                  className={`max-w-[80%] p-4 ${
+                {message.role === "assistant" && (
+                  <div className="flex-shrink-0">
+                    <div className="w-10 h-10 rounded-2xl bg-gradient-primary flex items-center justify-center shadow-glow">
+                      <MessageSquare className="w-5 h-5 text-primary-foreground" />
+                    </div>
+                  </div>
+                )}
+                <div
+                  className={`max-w-[75%] rounded-3xl p-5 ${
                     message.role === "user"
-                      ? "bg-gradient-primary text-primary-foreground"
-                      : "bg-card/80 backdrop-blur-sm border-primary/20"
+                      ? "bg-gradient-primary text-primary-foreground shadow-elevated"
+                      : "bg-gradient-secondary border border-primary/20 backdrop-blur-xl"
                   }`}
                 >
-                  <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                </Card>
-              </div>
-            ))
-          )}
-          {isLoading && (
-            <div className="flex justify-start">
-              <Card className="max-w-[80%] p-4 bg-card/80 backdrop-blur-sm border-primary/20">
-                <div className="flex gap-1">
-                  <div className="w-2 h-2 rounded-full bg-primary animate-bounce" />
-                  <div className="w-2 h-2 rounded-full bg-primary animate-bounce [animation-delay:0.2s]" />
-                  <div className="w-2 h-2 rounded-full bg-primary animate-bounce [animation-delay:0.4s]" />
+                  <p className="whitespace-pre-wrap leading-relaxed">{message.content}</p>
                 </div>
-              </Card>
-            </div>
-          )}
-          <div ref={messagesEndRef} />
-        </div>
-
-        {/* Quick Actions */}
-        <div className="px-6 py-3 border-t border-border/50 bg-card/30 backdrop-blur-sm">
-          <div className="flex gap-2 justify-center">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleQuickAction("Set a reminder")}
-              className="border-primary/20"
-            >
-              Set a reminder
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleQuickAction("Check weather")}
-              className="border-primary/20"
-            >
-              Check weather
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleQuickAction("Latest news")}
-              className="border-primary/20"
-            >
-              Latest news
-            </Button>
+                {message.role === "user" && (
+                  <div className="flex-shrink-0">
+                    <Avatar className="w-10 h-10 ring-2 ring-primary/50">
+                      <AvatarFallback className="bg-gradient-accent text-primary-foreground">
+                        {userEmail ? userEmail[0].toUpperCase() : "U"}
+                      </AvatarFallback>
+                    </Avatar>
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
-        </div>
+        </ScrollArea>
 
         {/* Input Area */}
-        <div className="p-6 border-t border-border/50 bg-card/30 backdrop-blur-sm">
-          <div className="flex gap-2 max-w-4xl mx-auto">
-            <Input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyPress={(e) => e.key === "Enter" && handleSend()}
-              placeholder="Type your message..."
-              className="flex-1 bg-secondary/50 border-primary/20"
-              disabled={isLoading}
-            />
-            <Button
-              onClick={() => navigate("/voice")}
-              size="icon"
-              variant="outline"
-              className="border-primary/20"
-            >
-              <Mic className="h-4 w-4" />
-            </Button>
-            <Button
-              onClick={handleSend}
-              size="icon"
-              className="bg-gradient-primary"
-              disabled={!input.trim() || isLoading}
-            >
-              <Send className="h-4 w-4" />
-            </Button>
+        <div className="border-t border-border/50 bg-card/50 backdrop-blur-2xl p-6">
+          <div className="max-w-4xl mx-auto">
+            <div className="flex gap-2 mb-4">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => handleQuickAction("Set a reminder for tomorrow")}
+                className="border-primary/30 hover:bg-primary/10 hover:border-primary/50 transition-all"
+              >
+                Set a reminder
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => handleQuickAction("What's the weather today?")}
+                className="border-accent/30 hover:bg-accent/10 hover:border-accent/50 transition-all"
+              >
+                Check weather
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => handleQuickAction("Show my tasks")}
+                className="border-primary/30 hover:bg-primary/10 hover:border-primary/50 transition-all"
+              >
+                My tasks
+              </Button>
+            </div>
+            <div className="flex gap-3">
+              <div className="flex-1 relative">
+                <Textarea
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={handleKeyPress}
+                  placeholder="Ask me anything..."
+                  className="min-h-[70px] resize-none rounded-2xl border-primary/20 bg-background/50 backdrop-blur-sm focus:border-primary/50 transition-all pr-4"
+                  disabled={isLoading}
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <Button
+                  onClick={handleSend}
+                  disabled={isLoading || !input.trim()}
+                  className="h-[70px] px-6 bg-gradient-primary hover:opacity-90 shadow-glow transition-all hover:scale-105 rounded-2xl"
+                >
+                  <Send className="h-5 w-5" />
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
       </div>

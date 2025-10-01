@@ -1,11 +1,7 @@
 import ChatInterface from "./ChatInterface";
 
-interface DashboardProps {
-  username?: string;
-}
-
-const Dashboard = ({ username }: DashboardProps) => {
-  return <ChatInterface username={username} />;
+const Dashboard = () => {
+  return <ChatInterface />;
 };
 
 export default Dashboard;
