@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Send, Mic, Settings, ListTodo, MessageSquare, LogOut, Bell } from "lucide-react";
+import { Send, Settings, ListTodo, MessageSquare, Bell, History } from "lucide-react";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
 import { ScrollArea } from "./ui/scroll-area";
@@ -8,6 +8,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import { requestNotificationPermission } from "@/lib/notifications";
+import { ConversationSidebar } from "./ConversationSidebar";
+import { AccountSwitcher } from "./AccountSwitcher";
+import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
 
 interface Message {
   role: "user" | "assistant";
@@ -19,6 +22,8 @@ const ChatInterface = () => {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [userEmail, setUserEmail] = useState("");
+  const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
+  const [showHistory, setShowHistory] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -31,10 +36,14 @@ const ChatInterface = () => {
       }
     };
     getUserEmail();
-    
-    // Request notification permission on mount
     requestNotificationPermission();
   }, []);
+
+  useEffect(() => {
+    if (currentConversationId) {
+      loadConversation(currentConversationId);
+    }
+  }, [currentConversationId]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -42,10 +51,56 @@ const ChatInterface = () => {
     }
   }, [messages]);
 
+  const loadConversation = async (conversationId: string) => {
+    const { data, error } = await supabase
+      .from("messages")
+      .select("*")
+      .eq("conversation_id", conversationId)
+      .order("created_at", { ascending: true });
+
+    if (!error && data) {
+      setMessages(data.map(msg => ({ role: msg.role as "user" | "assistant", content: msg.content })));
+    }
+  };
+
+  const saveMessage = async (role: "user" | "assistant", content: string) => {
+    if (!currentConversationId) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+
+      const title = content.slice(0, 50) + (content.length > 50 ? "..." : "");
+      const { data: conversation, error } = await supabase
+        .from("conversations")
+        .insert({ user_id: user.id, title })
+        .select()
+        .single();
+
+      if (error || !conversation) return null;
+      setCurrentConversationId(conversation.id);
+      
+      await supabase.from("messages").insert({
+        conversation_id: conversation.id,
+        role,
+        content,
+      });
+      
+      return conversation.id;
+    } else {
+      await supabase.from("messages").insert({
+        conversation_id: currentConversationId,
+        role,
+        content,
+      });
+      return currentConversationId;
+    }
+  };
+
   const streamChat = async (userMessage: string) => {
     const newMessages = [...messages, { role: "user" as const, content: userMessage }];
     setMessages(newMessages);
     setIsLoading(true);
+
+    const convId = await saveMessage("user", userMessage);
 
     try {
       const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
@@ -123,6 +178,10 @@ const ChatInterface = () => {
           }
         }
       }
+
+      if (assistantContent && (convId || currentConversationId)) {
+        await saveMessage("assistant", assistantContent);
+      }
     } catch (error) {
       console.error("Chat error:", error);
       toast({
@@ -148,6 +207,17 @@ const ChatInterface = () => {
     }
   };
 
+  const handleNewConversation = () => {
+    setMessages([]);
+    setCurrentConversationId(null);
+    setShowHistory(false);
+  };
+
+  const handleSelectConversation = (id: string) => {
+    setCurrentConversationId(id);
+    setShowHistory(false);
+  };
+
   const handleQuickAction = (action: string) => {
     setInput(action);
   };
@@ -158,19 +228,6 @@ const ChatInterface = () => {
     "Create a task to buy groceries",
     "What's on my task list?",
   ];
-
-  const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      toast({
-        title: "Error",
-        description: "Failed to log out. Please try again.",
-        variant: "destructive",
-      });
-    } else {
-      navigate("/auth");
-    }
-  };
 
   const handleEnableNotifications = async () => {
     const granted = await requestNotificationPermission();
@@ -197,46 +254,53 @@ const ChatInterface = () => {
       </div>
 
       {/* Sidebar */}
-      <div className="relative w-72 border-r border-border/50 bg-gradient-to-b from-card/80 to-card/40 backdrop-blur-2xl p-6 flex flex-col">
+      <div className="relative w-72 border-r border-border/50 bg-gradient-to-b from-card/80 to-card/40 backdrop-blur-2xl flex flex-col">
         {/* User Profile Section */}
-        <div className="mb-8 p-4 rounded-2xl bg-gradient-to-br from-primary/10 to-accent/10 border border-primary/20">
-          <div className="flex items-center gap-3 mb-4">
-            <Avatar className="h-12 w-12 ring-2 ring-primary/50">
-              <AvatarFallback className="bg-gradient-primary text-primary-foreground">
-                {userEmail ? userEmail[0].toUpperCase() : "U"}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate">{userEmail || "User"}</p>
-              <p className="text-xs text-muted-foreground">Active</p>
-            </div>
-          </div>
-          <Button
-            onClick={handleLogout}
-            variant="outline"
-            size="sm"
-            className="w-full border-primary/30 hover:bg-primary/10"
-          >
-            <LogOut className="w-4 h-4 mr-2" />
-            Logout
-          </Button>
+        <div className="p-4 border-b border-border/50">
+          <AccountSwitcher />
         </div>
 
-        <div className="mb-6">
+        <div className="p-6 pb-4">
           <h1 className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent animate-gradient">
             Virtual Assistant
           </h1>
           <p className="text-xs text-muted-foreground mt-1">Your AI-powered companion</p>
         </div>
 
-        <nav className="space-y-2 flex-1">
+        <nav className="space-y-1 flex-1 px-3">
+          <Button
+            variant="ghost"
+            className="w-full justify-start group hover:bg-primary/10 transition-all"
+            onClick={handleNewConversation}
+          >
+            <MessageSquare className="mr-2 h-4 w-4 group-hover:text-primary transition-colors" />
+            <span className="text-foreground">New Chat</span>
+          </Button>
+          <Sheet open={showHistory} onOpenChange={setShowHistory}>
+            <SheetTrigger asChild>
+              <Button
+                variant="ghost"
+                className="w-full justify-start group hover:bg-primary/10 transition-all"
+              >
+                <History className="mr-2 h-4 w-4 group-hover:text-primary transition-colors" />
+                <span className="text-foreground">Chat History</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-80 p-0 bg-card border-primary/20">
+              <ConversationSidebar
+                currentConversationId={currentConversationId}
+                onSelectConversation={handleSelectConversation}
+                onNewConversation={handleNewConversation}
+              />
+            </SheetContent>
+          </Sheet>
           <Button
             variant="ghost"
             className="w-full justify-start group hover:bg-primary/10 transition-all"
             onClick={() => navigate("/tasks")}
           >
             <ListTodo className="mr-2 h-4 w-4 group-hover:text-primary transition-colors" />
-            Tasks
+            <span className="text-foreground">Tasks</span>
           </Button>
           <Button
             variant="ghost"
@@ -244,7 +308,7 @@ const ChatInterface = () => {
             onClick={() => navigate("/voice")}
           >
             <MessageSquare className="mr-2 h-4 w-4 group-hover:text-primary transition-colors" />
-            Voice Commands
+            <span className="text-foreground">Voice Commands</span>
           </Button>
           <Button
             variant="ghost"
@@ -252,7 +316,7 @@ const ChatInterface = () => {
             onClick={() => navigate("/settings")}
           >
             <Settings className="mr-2 h-4 w-4 group-hover:text-primary transition-colors" />
-            Settings
+            <span className="text-foreground">Settings</span>
           </Button>
           <Button
             variant="ghost"
@@ -260,17 +324,17 @@ const ChatInterface = () => {
             onClick={handleEnableNotifications}
           >
             <Bell className="mr-2 h-4 w-4 group-hover:text-accent transition-colors" />
-            Notifications
+            <span className="text-foreground">Notifications</span>
           </Button>
         </nav>
 
-        <div className="mt-auto space-y-2 p-4 bg-gradient-secondary rounded-2xl border border-primary/10">
+        <div className="mt-auto space-y-2 p-4 mx-3 mb-4 bg-gradient-secondary rounded-2xl border border-primary/10">
           <p className="text-sm font-semibold mb-3 text-primary">Quick Actions</p>
           {suggestions.map((suggestion, idx) => (
             <button
               key={idx}
               onClick={() => setInput(suggestion)}
-              className="text-xs text-left w-full p-3 rounded-xl bg-background/30 hover:bg-background/60 border border-border/50 hover:border-primary/30 transition-all duration-200 hover:scale-[1.02]"
+              className="text-xs text-left w-full p-3 rounded-xl bg-background/30 hover:bg-background/60 border border-border/50 hover:border-primary/30 transition-all duration-200 hover:scale-[1.02] text-foreground"
             >
               {suggestion}
             </button>
