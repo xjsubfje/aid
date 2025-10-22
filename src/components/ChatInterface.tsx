@@ -25,6 +25,7 @@ const ChatInterface = () => {
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
   const [showHistory, setShowHistory] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const conversationIdRef = useRef<string | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -43,6 +44,7 @@ const ChatInterface = () => {
     if (currentConversationId) {
       loadConversation(currentConversationId);
     }
+    conversationIdRef.current = currentConversationId;
   }, [currentConversationId]);
 
   useEffect(() => {
@@ -63,8 +65,14 @@ const ChatInterface = () => {
     }
   };
 
-  const saveMessage = async (role: "user" | "assistant", content: string) => {
-    if (!currentConversationId) {
+  const saveMessage = async (
+    role: "user" | "assistant",
+    content: string,
+    conversationIdOverride?: string | null
+  ) => {
+    let targetConversationId = conversationIdOverride ?? currentConversationId ?? conversationIdRef.current;
+
+    if (!targetConversationId) {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return null;
 
@@ -77,22 +85,17 @@ const ChatInterface = () => {
 
       if (error || !conversation) return null;
       setCurrentConversationId(conversation.id);
-      
-      await supabase.from("messages").insert({
-        conversation_id: conversation.id,
-        role,
-        content,
-      });
-      
-      return conversation.id;
-    } else {
-      await supabase.from("messages").insert({
-        conversation_id: currentConversationId,
-        role,
-        content,
-      });
-      return currentConversationId;
+      conversationIdRef.current = conversation.id;
+      targetConversationId = conversation.id;
     }
+
+    await supabase.from("messages").insert({
+      conversation_id: targetConversationId,
+      role,
+      content,
+    });
+
+    return targetConversationId;
   };
 
   const streamChat = async (userMessage: string) => {
@@ -179,8 +182,8 @@ const ChatInterface = () => {
         }
       }
 
-      if (assistantContent && (convId || currentConversationId)) {
-        await saveMessage("assistant", assistantContent);
+      if (assistantContent && (convId || currentConversationId || conversationIdRef.current)) {
+        await saveMessage("assistant", assistantContent, convId ?? currentConversationId ?? conversationIdRef.current);
       }
     } catch (error) {
       console.error("Chat error:", error);
