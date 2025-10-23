@@ -4,6 +4,16 @@ import { Button } from "./ui/button";
 import { ScrollArea } from "./ui/scroll-area";
 import { Plus, MessageSquare, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "./ui/alert-dialog";
 
 interface Conversation {
   id: string;
@@ -23,6 +33,8 @@ export const ConversationSidebar = ({
   onNewConversation,
 }: ConversationSidebarProps) => {
   const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [conversationToDelete, setConversationToDelete] = useState<string | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -40,12 +52,35 @@ export const ConversationSidebar = ({
     }
   };
 
-  const deleteConversation = async (id: string, e: React.MouseEvent) => {
+  const confirmDelete = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
+    setConversationToDelete(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const deleteConversation = async () => {
+    if (!conversationToDelete) return;
+
+    // First delete all messages in the conversation
+    const { error: messagesError } = await supabase
+      .from("messages")
+      .delete()
+      .eq("conversation_id", conversationToDelete);
+
+    if (messagesError) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to delete conversation messages",
+      });
+      return;
+    }
+
+    // Then delete the conversation
     const { error } = await supabase
       .from("conversations")
       .delete()
-      .eq("id", id);
+      .eq("id", conversationToDelete);
 
     if (error) {
       toast({
@@ -59,10 +94,13 @@ export const ConversationSidebar = ({
         description: "Your conversation has been removed.",
       });
       fetchConversations();
-      if (currentConversationId === id) {
+      if (currentConversationId === conversationToDelete) {
         onNewConversation();
       }
     }
+
+    setDeleteDialogOpen(false);
+    setConversationToDelete(null);
   };
 
   return (
@@ -95,15 +133,32 @@ export const ConversationSidebar = ({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-                onClick={(e) => deleteConversation(conv.id, e)}
+                className="h-6 w-6 text-muted-foreground hover:text-destructive transition-colors"
+                onClick={(e) => confirmDelete(conv.id, e)}
               >
-                <Trash2 className="h-3 w-3 text-destructive" />
+                <Trash2 className="h-3 w-3" />
               </Button>
             </div>
           ))}
         </div>
       </ScrollArea>
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete conversation?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete this conversation and all its messages. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={deleteConversation} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
