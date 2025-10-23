@@ -108,7 +108,7 @@ export const ConversationSidebar = ({
       <div className="p-4 border-b border-border/50">
         <Button
           onClick={onNewConversation}
-          className="w-full bg-gradient-primary hover:opacity-90"
+          className="w-full bg-gradient-primary text-foreground hover:opacity-90"
         >
           <Plus className="mr-2 h-4 w-4" />
           New Chat
@@ -121,7 +121,7 @@ export const ConversationSidebar = ({
               key={conv.id}
               className={`group flex items-center justify-between p-3 rounded-lg cursor-pointer transition-all hover:bg-secondary/50 ${
                 currentConversationId === conv.id
-                  ? "bg-gradient-secondary border border-primary/20"
+                  ? "bg-secondary border border-primary/30 shadow-card"
                   : ""
               }`}
               onClick={() => onSelectConversation(conv.id)}
@@ -133,7 +133,8 @@ export const ConversationSidebar = ({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-6 w-6 text-muted-foreground hover:text-destructive transition-colors"
+                aria-label="Delete conversation"
+                className="h-6 w-6 text-destructive hover:bg-destructive/10 rounded transition-colors"
                 onClick={(e) => confirmDelete(conv.id, e)}
               >
                 <Trash2 className="h-3 w-3" />
