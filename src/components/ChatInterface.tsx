@@ -65,18 +65,38 @@ const ChatInterface = () => {
     }
   };
 
+  const generateConversationTitle = async (firstMessage: string, conversationId: string) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) return;
+
+      const TITLE_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-title`;
+      await fetch(TITLE_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ firstMessage, conversationId }),
+      });
+    } catch (error) {
+      console.error("Failed to generate title:", error);
+    }
+  };
+
   const saveMessage = async (
     role: "user" | "assistant",
     content: string,
     conversationIdOverride?: string | null
   ) => {
     let targetConversationId = conversationIdOverride ?? currentConversationId ?? conversationIdRef.current;
+    let isNewConversation = false;
 
     if (!targetConversationId) {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return null;
 
-      const title = content.slice(0, 50) + (content.length > 50 ? "..." : "");
+      const title = "New conversation";
       const { data: conversation, error } = await supabase
         .from("conversations")
         .insert({ user_id: user.id, title })
@@ -87,6 +107,7 @@ const ChatInterface = () => {
       setCurrentConversationId(conversation.id);
       conversationIdRef.current = conversation.id;
       targetConversationId = conversation.id;
+      isNewConversation = true;
     }
 
     await supabase.from("messages").insert({
@@ -94,6 +115,11 @@ const ChatInterface = () => {
       role,
       content,
     });
+
+    // Generate AI title for new conversations after first user message
+    if (isNewConversation && role === "user") {
+      generateConversationTitle(content, targetConversationId);
+    }
 
     return targetConversationId;
   };
