@@ -1,6 +1,6 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Send, Settings, ListTodo, MessageSquare, Bell, History } from "lucide-react";
+import { Send, Settings, ListTodo, MessageSquare, Bell, History, Volume2, VolumeX, Mic, MicOff, Trash2 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
 import { ScrollArea } from "./ui/scroll-area";
@@ -11,11 +11,29 @@ import { requestNotificationPermission } from "@/lib/notifications";
 import { ConversationSidebar } from "./ConversationSidebar";
 import { AccountSwitcher } from "./AccountSwitcher";
 import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
+import { useTextToSpeech } from "@/hooks/useTextToSpeech";
+import { useVoiceInput } from "@/hooks/useVoiceInput";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "./ui/alert-dialog";
 
 interface Message {
   role: "user" | "assistant";
   content: string;
+  id?: string;
 }
+
+// Remove task creation blocks from displayed content
+const cleanMessageContent = (content: string): string => {
+  return content.replace(/\[TASK_CREATED\][\s\S]*?\[\/TASK_CREATED\]/g, '').trim();
+};
 
 const ChatInterface = () => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -24,10 +42,23 @@ const ChatInterface = () => {
   const [userEmail, setUserEmail] = useState("");
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
   const [showHistory, setShowHistory] = useState(false);
+  const [deleteAllDialogOpen, setDeleteAllDialogOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const conversationIdRef = useRef<string | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { speak, stop, isSpeaking } = useTextToSpeech();
+
+  const handleVoiceTranscript = useCallback((transcript: string) => {
+    setInput(transcript);
+    // Automatically send the voice message
+    setTimeout(() => {
+      const sendButton = document.querySelector('[data-send-button]') as HTMLButtonElement;
+      if (sendButton) sendButton.click();
+    }, 100);
+  }, []);
+
+  const { isListening, isSupported: voiceSupported, toggleListening } = useVoiceInput(handleVoiceTranscript);
 
   useEffect(() => {
     const getUserEmail = async () => {
@@ -61,7 +92,11 @@ const ChatInterface = () => {
       .order("created_at", { ascending: true });
 
     if (!error && data) {
-      setMessages(data.map(msg => ({ role: msg.role as "user" | "assistant", content: msg.content })));
+      setMessages(data.map((msg, idx) => ({ 
+        role: msg.role as "user" | "assistant", 
+        content: msg.content,
+        id: `${conversationId}-${idx}`
+      })));
     }
   };
 
@@ -125,7 +160,8 @@ const ChatInterface = () => {
   };
 
   const streamChat = async (userMessage: string) => {
-    const newMessages = [...messages, { role: "user" as const, content: userMessage }];
+    const msgId = `msg-${Date.now()}`;
+    const newMessages = [...messages, { role: "user" as const, content: userMessage, id: msgId }];
     setMessages(newMessages);
     setIsLoading(true);
 
@@ -151,7 +187,7 @@ const ChatInterface = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${session.access_token}`,
         },
-        body: JSON.stringify({ messages: newMessages }),
+        body: JSON.stringify({ messages: newMessages.map(m => ({ role: m.role, content: m.content })) }),
       });
 
       if (!response.ok) {
@@ -180,6 +216,7 @@ const ChatInterface = () => {
       const decoder = new TextDecoder();
       let textBuffer = "";
       let assistantContent = "";
+      const assistantMsgId = `assistant-${Date.now()}`;
 
       while (true) {
         const { done, value } = await reader.read();
@@ -211,7 +248,7 @@ const ChatInterface = () => {
                     i === prev.length - 1 ? { ...m, content: assistantContent } : m
                   );
                 }
-                return [...prev, { role: "assistant", content: assistantContent }];
+                return [...prev, { role: "assistant", content: assistantContent, id: assistantMsgId }];
               });
             }
           } catch (e) {
@@ -252,15 +289,60 @@ const ChatInterface = () => {
     setMessages([]);
     setCurrentConversationId(null);
     setShowHistory(false);
+    stop(); // Stop any TTS
   };
 
   const handleSelectConversation = (id: string) => {
     setCurrentConversationId(id);
     setShowHistory(false);
+    stop(); // Stop any TTS
   };
 
   const handleQuickAction = (action: string) => {
     setInput(action);
+  };
+
+  const handleDeleteAllHistory = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    // Delete all messages first
+    const { data: conversations } = await supabase
+      .from("conversations")
+      .select("id")
+      .eq("user_id", user.id);
+
+    if (conversations) {
+      for (const conv of conversations) {
+        await supabase.from("messages").delete().eq("conversation_id", conv.id);
+      }
+    }
+
+    // Then delete all conversations
+    const { error } = await supabase
+      .from("conversations")
+      .delete()
+      .eq("user_id", user.id);
+
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to delete chat history",
+      });
+    } else {
+      toast({
+        title: "History cleared",
+        description: "All conversations have been deleted.",
+      });
+      handleNewConversation();
+    }
+    setDeleteAllDialogOpen(false);
+  };
+
+  const handleSpeakMessage = (content: string, messageId: string) => {
+    const cleanContent = cleanMessageContent(content);
+    speak(cleanContent, messageId);
   };
 
   const suggestions = [
@@ -337,19 +419,19 @@ const ChatInterface = () => {
           </Sheet>
           <Button
             variant="ghost"
+            className="w-full justify-start group hover:bg-destructive/10 transition-all"
+            onClick={() => setDeleteAllDialogOpen(true)}
+          >
+            <Trash2 className="mr-2 h-4 w-4 group-hover:text-destructive transition-colors" />
+            <span className="text-foreground">Delete All History</span>
+          </Button>
+          <Button
+            variant="ghost"
             className="w-full justify-start group hover:bg-primary/10 transition-all"
             onClick={() => navigate("/tasks")}
           >
             <ListTodo className="mr-2 h-4 w-4 group-hover:text-primary transition-colors" />
             <span className="text-foreground">Tasks</span>
-          </Button>
-          <Button
-            variant="ghost"
-            className="w-full justify-start group hover:bg-primary/10 transition-all"
-            onClick={() => navigate("/voice")}
-          >
-            <MessageSquare className="mr-2 h-4 w-4 group-hover:text-primary transition-colors" />
-            <span className="text-foreground">Voice Commands</span>
           </Button>
           <Button
             variant="ghost"
@@ -403,7 +485,7 @@ const ChatInterface = () => {
 
             {messages.map((message, idx) => (
               <div
-                key={idx}
+                key={message.id || idx}
                 className={`flex gap-4 ${
                   message.role === "user" ? "justify-end" : "justify-start"
                 } animate-in fade-in slide-in-from-bottom-4 duration-500`}
@@ -422,7 +504,29 @@ const ChatInterface = () => {
                       : "bg-gradient-secondary border border-primary/20 backdrop-blur-xl"
                   }`}
                 >
-                  <p className="whitespace-pre-wrap leading-relaxed">{message.content}</p>
+                  <p className="whitespace-pre-wrap leading-relaxed">{cleanMessageContent(message.content)}</p>
+                  {message.role === "assistant" && (
+                    <div className="mt-3 pt-2 border-t border-primary/10">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleSpeakMessage(message.content, message.id || `msg-${idx}`)}
+                        className="h-7 px-2 text-xs hover:bg-primary/10"
+                      >
+                        {isSpeaking === (message.id || `msg-${idx}`) ? (
+                          <>
+                            <VolumeX className="h-3.5 w-3.5 mr-1" />
+                            Stop
+                          </>
+                        ) : (
+                          <>
+                            <Volume2 className="h-3.5 w-3.5 mr-1" />
+                            Listen
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  )}
                 </div>
                 {message.role === "user" && (
                   <div className="flex-shrink-0">
@@ -479,18 +583,49 @@ const ChatInterface = () => {
                 />
               </div>
               <div className="flex flex-col gap-2">
+                {voiceSupported && (
+                  <Button
+                    onClick={toggleListening}
+                    disabled={isLoading}
+                    variant="outline"
+                    className={`h-[32px] px-3 rounded-xl transition-all ${
+                      isListening ? "bg-accent text-accent-foreground animate-pulse" : "hover:bg-primary/10"
+                    }`}
+                  >
+                    {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                  </Button>
+                )}
                 <Button
                   onClick={handleSend}
                   disabled={isLoading || !input.trim()}
-                  className="h-[70px] px-6 bg-gradient-primary hover:opacity-90 shadow-glow transition-all hover:scale-105 rounded-2xl"
+                  data-send-button
+                  className="h-[32px] px-6 bg-gradient-primary hover:opacity-90 shadow-glow transition-all hover:scale-105 rounded-xl flex-1"
                 >
-                  <Send className="h-5 w-5" />
+                  <Send className="h-4 w-4" />
                 </Button>
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Delete All History Dialog */}
+      <AlertDialog open={deleteAllDialogOpen} onOpenChange={setDeleteAllDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete all chat history?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete all your conversations and messages. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteAllHistory} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete All
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

@@ -1,6 +1,9 @@
 project_id = "diapsbdpdhrmientxxxu"
 
 [functions.chat]
+
+[functions.elevenlabs-tts]
+verify_jwt = false
 verify_jwt = false
 
 [functions.generate-title]
