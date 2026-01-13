@@ -1,10 +1,12 @@
 import { useState, useRef, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useSettings, getVoiceId } from "@/contexts/SettingsContext";
 
 export const useTextToSpeech = () => {
   const [isSpeaking, setIsSpeaking] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const { toast } = useToast();
+  const { settings } = useSettings();
 
   const speak = useCallback(async (text: string, messageId: string) => {
     // If already speaking this message, stop it
@@ -24,6 +26,8 @@ export const useTextToSpeech = () => {
     setIsSpeaking(messageId);
 
     try {
+      const voiceId = getVoiceId(settings.voiceType);
+      
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/elevenlabs-tts`,
         {
@@ -33,7 +37,7 @@ export const useTextToSpeech = () => {
             apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
             Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
           },
-          body: JSON.stringify({ text }),
+          body: JSON.stringify({ text, voiceId }),
         }
       );
 
@@ -71,7 +75,7 @@ export const useTextToSpeech = () => {
         description: "Failed to convert text to speech.",
       });
     }
-  }, [isSpeaking, toast]);
+  }, [isSpeaking, toast, settings.voiceType]);
 
   const stop = useCallback(() => {
     if (audioRef.current) {

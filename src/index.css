@@ -7,7 +7,9 @@ All colors MUST be HSL.
 */
 
 @layer base {
-  :root {
+  /* Dark theme (default) */
+  :root,
+  .dark {
     --background: 220 30% 8%;
     --foreground: 210 40% 98%;
 
@@ -45,6 +47,48 @@ All colors MUST be HSL.
     --shadow-glow: 0 0 60px hsla(195, 85%, 55%, 0.35);
     --shadow-elevated: 0 25px 70px -15px hsla(195, 85%, 55%, 0.5);
     --shadow-card: 0 4px 20px hsla(220, 30%, 5%, 0.5);
+    --blur-subtle: blur(80px);
+  }
+
+  /* Light theme */
+  .light {
+    --background: 210 40% 98%;
+    --foreground: 220 30% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 30% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 30% 15%;
+
+    --primary: 195 85% 45%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 30% 94%;
+    --secondary-foreground: 220 30% 20%;
+
+    --muted: 210 30% 90%;
+    --muted-foreground: 220 15% 45%;
+
+    --accent: 170 75% 40%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 210 25% 85%;
+    --input: 210 30% 94%;
+    --ring: 195 85% 45%;
+
+    --radius: 1rem;
+    
+    --gradient-primary: linear-gradient(135deg, hsl(195, 85%, 50%), hsl(170, 75%, 42%));
+    --gradient-secondary: linear-gradient(145deg, hsl(210, 30%, 97%), hsl(210, 30%, 94%));
+    --gradient-accent: linear-gradient(90deg, hsl(195, 85%, 50%), hsl(285, 75%, 55%));
+    --gradient-card: linear-gradient(145deg, hsl(0, 0%, 100%), hsl(210, 30%, 98%));
+    --shadow-glow: 0 0 60px hsla(195, 85%, 50%, 0.25);
+    --shadow-elevated: 0 25px 70px -15px hsla(195, 85%, 50%, 0.3);
+    --shadow-card: 0 4px 20px hsla(220, 30%, 50%, 0.1);
     --blur-subtle: blur(80px);
   }
 }

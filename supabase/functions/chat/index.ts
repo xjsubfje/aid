@@ -93,6 +93,33 @@ serve(async (req) => {
     const userId = claimsData.claims.sub;
     console.log("Authenticated user:", userId);
 
+    // Fetch user's language preference
+    let userLanguage = "English";
+    try {
+      const { data: settingsData } = await supabase
+        .from("settings")
+        .select("language")
+        .eq("user_id", userId)
+        .single();
+      
+      if (settingsData?.language) {
+        const langMap: Record<string, string> = {
+          en: "English",
+          es: "Spanish",
+          fr: "French", 
+          de: "German",
+          pt: "Portuguese",
+          it: "Italian",
+          ja: "Japanese",
+          ko: "Korean",
+          zh: "Chinese",
+        };
+        userLanguage = langMap[settingsData.language] || "English";
+      }
+    } catch (e) {
+      console.log("Could not fetch user language preference:", e);
+    }
+
     // Parse and validate request body
     let body: unknown;
     try {
@@ -122,9 +149,9 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    console.log("Calling AI gateway with", messages.length, "messages for user:", userId);
+    console.log("Calling AI gateway with", messages.length, "messages for user:", userId, "in language:", userLanguage);
 
-    const systemPrompt = `You are a helpful and friendly virtual assistant. You can help with tasks, answer questions, provide information, and have conversations. Keep responses clear, concise, and helpful.
+    const systemPrompt = `You are a helpful and friendly virtual assistant. You MUST respond in ${userLanguage}. You can help with tasks, answer questions, provide information, and have conversations. Keep responses clear, concise, and helpful.
 
 IMPORTANT: When a user asks you to create a task, reminder, or todo item, you MUST:
 1. Create the task by including a special JSON block in your response
