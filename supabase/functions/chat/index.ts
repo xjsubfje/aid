@@ -43,6 +43,20 @@ function validateMessages(messages: unknown): messages is ChatMessage[] {
   return true;
 }
 
+// Parse task creation from AI response
+function extractTaskFromResponse(response: string): { title: string; description?: string; dueDate?: string } | null {
+  // Look for JSON task block in the response
+  const taskMatch = response.match(/\[TASK_CREATED\]([\s\S]*?)\[\/TASK_CREATED\]/);
+  if (taskMatch) {
+    try {
+      return JSON.parse(taskMatch[1].trim());
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -110,6 +124,22 @@ serve(async (req) => {
 
     console.log("Calling AI gateway with", messages.length, "messages for user:", userId);
 
+    const systemPrompt = `You are a helpful and friendly virtual assistant. You can help with tasks, answer questions, provide information, and have conversations. Keep responses clear, concise, and helpful.
+
+IMPORTANT: When a user asks you to create a task, reminder, or todo item, you MUST:
+1. Create the task by including a special JSON block in your response
+2. The block format is: [TASK_CREATED]{"title": "task title", "description": "optional description", "dueDate": "optional ISO date"}[/TASK_CREATED]
+3. After the block, confirm to the user that you've created the task
+
+Examples:
+- "Create a task to buy groceries" → Include [TASK_CREATED]{"title": "Buy groceries"}[/TASK_CREATED] and say "I've created a task for you to buy groceries!"
+- "Remind me to call mom tomorrow" → Include [TASK_CREATED]{"title": "Call mom", "dueDate": "${new Date(Date.now() + 86400000).toISOString()}"}[/TASK_CREATED] and confirm
+- "Add a task: finish report by Friday with notes about quarterly data" → Include [TASK_CREATED]{"title": "Finish report", "description": "Notes about quarterly data", "dueDate": "...Friday's date..."}[/TASK_CREATED]
+
+For due dates, calculate the actual date based on the current date. Today is ${new Date().toISOString().split('T')[0]}.
+
+The task creation block will be hidden from the user - they will only see your confirmation message.`;
+
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -121,7 +151,7 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: "You are a helpful and friendly virtual assistant. You can help with tasks, answer questions, provide information, and have conversations. Keep responses clear, concise, and helpful. You can help set reminders, check weather, get news, and answer any questions the user has."
+            content: systemPrompt
           },
           ...messages,
         ],
@@ -156,7 +186,60 @@ serve(async (req) => {
       throw new Error(`AI gateway error: ${response.status}`);
     }
 
-    return new Response(response.body, {
+    // Create a TransformStream to process the response and extract tasks
+    const { readable, writable } = new TransformStream();
+    const writer = writable.getWriter();
+    const reader = response.body!.getReader();
+    const decoder = new TextDecoder();
+    let fullResponse = "";
+
+    (async () => {
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          
+          const chunk = decoder.decode(value, { stream: true });
+          fullResponse += chunk;
+          await writer.write(value);
+        }
+        
+        // After streaming is complete, check for task creation
+        // Parse the full response to extract content
+        const lines = fullResponse.split('\n');
+        let content = "";
+        for (const line of lines) {
+          if (line.startsWith('data: ') && !line.includes('[DONE]')) {
+            try {
+              const json = JSON.parse(line.slice(6));
+              if (json.choices?.[0]?.delta?.content) {
+                content += json.choices[0].delta.content;
+              }
+            } catch {
+              // Skip invalid JSON
+            }
+          }
+        }
+        
+        const taskData = extractTaskFromResponse(content);
+        if (taskData && userId) {
+          console.log("Creating task for user:", userId, taskData);
+          await supabase.from('tasks').insert({
+            user_id: userId,
+            title: taskData.title,
+            description: taskData.description || null,
+            due_date: taskData.dueDate || null,
+          });
+        }
+        
+        await writer.close();
+      } catch (error) {
+        console.error("Stream processing error:", error);
+        await writer.abort(error);
+      }
+    })();
+
+    return new Response(readable, {
       headers: {
         ...corsHeaders,
         "Content-Type": "text/event-stream",
