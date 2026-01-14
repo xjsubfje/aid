@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,26 +14,55 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
 
+  const searchParams = new URLSearchParams(location.search);
+  const mode = searchParams.get("mode"); // "add" | "switch" | null
+  const allowWhileSignedIn = mode === "add" || mode === "switch";
+
   useEffect(() => {
+    // Pre-fill email if provided
+    const emailFromQuery = searchParams.get("email");
+    const emailFromStorage = localStorage.getItem("switch_to_email");
+    const prefill = emailFromQuery || emailFromStorage;
+
+    if (prefill) {
+      setEmail(prefill);
+      localStorage.removeItem("switch_to_email");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.search]);
+
+  useEffect(() => {
+    let cancelled = false;
+
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
+      if (cancelled) return;
+      // Only auto-redirect if user isn't explicitly trying to switch/add another account
+      if (session && !allowWhileSignedIn) {
         navigate("/");
       }
     });
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      // Avoid redirecting on initial session when we're in switch/add mode.
+      if (event === "INITIAL_SESSION" && allowWhileSignedIn) return;
+
       if (session) {
         navigate("/");
       }
     });
 
-    return () => subscription.unsubscribe();
-  }, [navigate]);
+    return () => {
+      cancelled = true;
+      subscription.unsubscribe();
+    };
+  }, [navigate, allowWhileSignedIn]);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,10 +76,10 @@ const Auth = () => {
         });
 
         if (error) throw error;
-        
+
         toast({
-          title: "Welcome back!",
-          description: "You've successfully signed in.",
+          title: mode === "switch" ? "Account switched" : "Welcome back!",
+          description: mode === "switch" ? "You're now signed in to the selected account." : "You've successfully signed in.",
         });
       } else {
         const { error } = await supabase.auth.signUp({
@@ -85,7 +114,7 @@ const Auth = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-background to-accent/20 opacity-50" />
-      
+
       <Card className="w-full max-w-md relative backdrop-blur-sm bg-card/80 border-primary/20 shadow-glow">
         <CardHeader className="space-y-2 text-center">
           <div className="flex justify-center mb-2">
@@ -94,10 +123,14 @@ const Auth = () => {
             </div>
           </div>
           <CardTitle className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-            Welcome to Your Virtual Assistant
+            {mode === "switch" ? "Switch account" : "Welcome to Your Virtual Assistant"}
           </CardTitle>
           <CardDescription>
-            {isLogin ? "Welcome back! Sign in to continue." : "Create your account to get started."}
+            {isLogin
+              ? mode === "switch"
+                ? "Sign in to switch to this account."
+                : "Welcome back! Sign in to continue."
+              : "Create your account to get started."}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -114,6 +147,7 @@ const Auth = () => {
                 />
               </div>
             )}
+
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -126,6 +160,7 @@ const Auth = () => {
                 className="bg-secondary/50 border-primary/20"
               />
             </div>
+
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
               <Input
@@ -139,6 +174,7 @@ const Auth = () => {
                 className="bg-secondary/50 border-primary/20"
               />
             </div>
+
             <Button
               type="submit"
               className="w-full bg-gradient-primary hover:opacity-90 transition-opacity"
@@ -148,6 +184,7 @@ const Auth = () => {
               {isLogin ? "Sign In" : "Sign Up"}
             </Button>
           </form>
+
           <div className="mt-4 text-center text-sm">
             <button
               type="button"
@@ -157,6 +194,12 @@ const Auth = () => {
               {isLogin ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
             </button>
           </div>
+
+          {allowWhileSignedIn && (
+            <div className="mt-4 text-center text-xs text-muted-foreground">
+              You can safely sign in here to add/switch accounts without signing out first.
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
