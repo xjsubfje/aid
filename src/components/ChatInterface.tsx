@@ -1,13 +1,12 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Send, Settings, ListTodo, MessageSquare, Bell, History, Volume2, VolumeX, Mic, MicOff, Trash2 } from "lucide-react";
+import { Send, Settings, ListTodo, MessageSquare, History, Volume2, VolumeX, Mic, MicOff, Trash2, Loader2 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
 import { ScrollArea } from "./ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Avatar, AvatarFallback } from "./ui/avatar";
-import { requestNotificationPermission } from "@/lib/notifications";
 import { ConversationSidebar } from "./ConversationSidebar";
 import { AccountSwitcher } from "./AccountSwitcher";
 import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
@@ -68,7 +67,6 @@ const ChatInterface = () => {
       }
     };
     getUserEmail();
-    requestNotificationPermission();
   }, []);
 
   useEffect(() => {
@@ -352,22 +350,6 @@ const ChatInterface = () => {
     "What's on my task list?",
   ];
 
-  const handleEnableNotifications = async () => {
-    const granted = await requestNotificationPermission();
-    if (granted) {
-      toast({
-        title: "Notifications Enabled",
-        description: "You'll receive reminders for your tasks!",
-      });
-    } else {
-      toast({
-        title: "Notifications Blocked",
-        description: "Please enable notifications in your browser settings.",
-        variant: "destructive",
-      });
-    }
-  };
-
   return (
     <div className="flex h-screen bg-background relative overflow-hidden">
       {/* Animated background elements */}
@@ -441,28 +423,7 @@ const ChatInterface = () => {
             <Settings className="mr-2 h-4 w-4 group-hover:text-primary transition-colors" />
             <span className="text-foreground">Settings</span>
           </Button>
-          <Button
-            variant="ghost"
-            className="w-full justify-start group hover:bg-accent/10 transition-all"
-            onClick={handleEnableNotifications}
-          >
-            <Bell className="mr-2 h-4 w-4 group-hover:text-accent transition-colors" />
-            <span className="text-foreground">Notifications</span>
-          </Button>
         </nav>
-
-        <div className="mt-auto space-y-2 p-4 mx-3 mb-4 bg-gradient-secondary rounded-2xl border border-primary/10">
-          <p className="text-sm font-semibold mb-3 text-primary">Quick Actions</p>
-          {suggestions.map((suggestion, idx) => (
-            <button
-              key={idx}
-              onClick={() => setInput(suggestion)}
-              className="text-xs text-left w-full p-3 rounded-xl bg-background/30 hover:bg-background/60 border border-border/50 hover:border-primary/30 transition-all duration-200 hover:scale-[1.02] text-foreground"
-            >
-              {suggestion}
-            </button>
-          ))}
-        </div>
       </div>
 
       {/* Main Chat Area */}
@@ -539,6 +500,23 @@ const ChatInterface = () => {
                 )}
               </div>
             ))}
+
+            {/* Loading indicator */}
+            {isLoading && (
+              <div className="flex gap-4 justify-start animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="flex-shrink-0">
+                  <div className="w-10 h-10 rounded-2xl bg-gradient-primary flex items-center justify-center shadow-glow">
+                    <MessageSquare className="w-5 h-5 text-primary-foreground" />
+                  </div>
+                </div>
+                <div className="max-w-[75%] rounded-3xl p-5 bg-gradient-secondary border border-primary/20 backdrop-blur-xl">
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                    <span className="text-muted-foreground">Thinking...</span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </ScrollArea>
 
