@@ -166,11 +166,11 @@ export const AccountSwitcher = () => {
               >
                 <Avatar className="h-8 w-8 mr-2">
                   <AvatarFallback className="bg-secondary text-foreground text-xs">
-                    {account.username[0].toUpperCase()}
+                    {(account.username || account.email)?.[0]?.toUpperCase() || "U"}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col">
-                  <span className="text-foreground">{account.username}</span>
+                  <span className="text-foreground">{account.username || account.email}</span>
                   {account.hasSession && (
                     <span className="text-xs text-muted-foreground">Quick switch available</span>
                   )}
