@@ -4,6 +4,8 @@ project_id = "diapsbdpdhrmientxxxu"
 
 [functions.elevenlabs-tts]
 verify_jwt = false
+
+[functions.delete-account]
 verify_jwt = false
 
 [functions.generate-title]
