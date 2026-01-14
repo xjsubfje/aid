@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useSettings, getVoiceId } from "@/contexts/SettingsContext";
+import { supabase } from "@/integrations/supabase/client";
 
 export const useTextToSpeech = () => {
   const [isSpeaking, setIsSpeaking] = useState<string | null>(null);
@@ -26,6 +27,13 @@ export const useTextToSpeech = () => {
     setIsSpeaking(messageId);
 
     try {
+      // Get the current user's session token for authentication
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session?.access_token) {
+        throw new Error("Not authenticated");
+      }
+
       const voiceId = getVoiceId(settings.voiceType);
       
       const response = await fetch(
@@ -35,7 +43,7 @@ export const useTextToSpeech = () => {
           headers: {
             "Content-Type": "application/json",
             apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            Authorization: `Bearer ${session.access_token}`,
           },
           body: JSON.stringify({ text, voiceId }),
         }
