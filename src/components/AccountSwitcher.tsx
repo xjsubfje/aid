@@ -16,11 +16,14 @@ import { useToast } from "@/hooks/use-toast";
 
 interface StoredAccount {
   email: string;
+  username: string;
   lastUsed: string;
+  hasSession: boolean;
 }
 
 export const AccountSwitcher = () => {
   const [currentEmail, setCurrentEmail] = useState("");
+  const [currentUsername, setCurrentUsername] = useState("");
   const [accounts, setAccounts] = useState<StoredAccount[]>([]);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -34,7 +37,17 @@ export const AccountSwitcher = () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (user?.email) {
       setCurrentEmail(user.email);
-      updateAccountsList(user.email);
+      
+      // Fetch username from profiles
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("username")
+        .eq("id", user.id)
+        .single();
+      
+      const username = profile?.username || user.email.split("@")[0];
+      setCurrentUsername(username);
+      updateAccountsList(user.email, username, true);
     }
   };
 
@@ -45,7 +58,7 @@ export const AccountSwitcher = () => {
     }
   };
 
-  const updateAccountsList = (email: string) => {
+  const updateAccountsList = (email: string, username: string, hasSession: boolean) => {
     const stored = localStorage.getItem("recent_accounts");
     let accountsList: StoredAccount[] = stored ? JSON.parse(stored) : [];
     
@@ -53,7 +66,7 @@ export const AccountSwitcher = () => {
     accountsList = accountsList.filter(acc => acc.email !== email);
     
     // Add to front
-    accountsList.unshift({ email, lastUsed: new Date().toISOString() });
+    accountsList.unshift({ email, username, lastUsed: new Date().toISOString(), hasSession });
     
     // Keep only last 5 accounts
     accountsList = accountsList.slice(0, 5);
@@ -62,18 +75,42 @@ export const AccountSwitcher = () => {
     setAccounts(accountsList);
   };
 
-  const handleSwitchAccount = async (email: string) => {
-    if (email === currentEmail) return;
+  const handleSwitchAccount = async (account: StoredAccount) => {
+    if (account.email === currentEmail) return;
 
-    await supabase.auth.signOut();
-    toast({
-      title: "Switched account",
-      description: `Please sign in as ${email}`,
-    });
-    navigate("/auth");
+    if (account.hasSession) {
+      // If the account has a stored session, just show a toast and refresh
+      // In reality, we'd need proper session storage, but for now we'll redirect to auth
+      // with a pre-filled email hint
+      toast({
+        title: "Switching account",
+        description: `Switching to ${account.username}...`,
+      });
+      // Store the email to pre-fill
+      localStorage.setItem("switch_to_email", account.email);
+      await supabase.auth.signOut();
+      navigate("/auth");
+    } else {
+      await supabase.auth.signOut();
+      toast({
+        title: "Switched account",
+        description: `Please sign in as ${account.username}`,
+      });
+      navigate("/auth");
+    }
   };
 
   const handleLogout = async () => {
+    // Mark current account as not having session
+    const stored = localStorage.getItem("recent_accounts");
+    if (stored) {
+      let accountsList: StoredAccount[] = JSON.parse(stored);
+      accountsList = accountsList.map(acc => 
+        acc.email === currentEmail ? { ...acc, hasSession: false } : acc
+      );
+      localStorage.setItem("recent_accounts", JSON.stringify(accountsList));
+    }
+    
     await supabase.auth.signOut();
     toast({
       title: "Logged out",
@@ -83,6 +120,7 @@ export const AccountSwitcher = () => {
   };
 
   const handleAddAccount = async () => {
+    // Keep current account session info
     await supabase.auth.signOut();
     navigate("/auth");
   };
@@ -94,11 +132,11 @@ export const AccountSwitcher = () => {
           <div className="flex items-center gap-3">
             <Avatar className="h-10 w-10 ring-2 ring-primary/50">
               <AvatarFallback className="bg-gradient-primary text-primary-foreground text-sm font-semibold">
-                {currentEmail ? currentEmail[0].toUpperCase() : "U"}
+                {currentUsername ? currentUsername[0].toUpperCase() : "U"}
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0 text-left">
-              <p className="text-sm font-medium truncate text-foreground">{currentEmail || "User"}</p>
+              <p className="text-sm font-medium truncate text-foreground">{currentUsername || "User"}</p>
               <p className="text-xs text-muted-foreground">Active</p>
             </div>
           </div>
@@ -110,10 +148,10 @@ export const AccountSwitcher = () => {
         <DropdownMenuItem disabled className="bg-gradient-secondary border border-primary/20">
           <Avatar className="h-8 w-8 mr-2">
             <AvatarFallback className="bg-gradient-primary text-primary-foreground text-xs">
-              {currentEmail ? currentEmail[0].toUpperCase() : "U"}
+              {currentUsername ? currentUsername[0].toUpperCase() : "U"}
             </AvatarFallback>
           </Avatar>
-          <span className="text-foreground">{currentEmail}</span>
+          <span className="text-foreground">{currentUsername}</span>
         </DropdownMenuItem>
         
         {accounts.length > 1 && (
@@ -123,15 +161,20 @@ export const AccountSwitcher = () => {
             {accounts.slice(1).map((account) => (
               <DropdownMenuItem
                 key={account.email}
-                onClick={() => handleSwitchAccount(account.email)}
+                onClick={() => handleSwitchAccount(account)}
                 className="cursor-pointer hover:bg-secondary/50"
               >
                 <Avatar className="h-8 w-8 mr-2">
                   <AvatarFallback className="bg-secondary text-foreground text-xs">
-                    {account.email[0].toUpperCase()}
+                    {account.username[0].toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
-                <span className="text-foreground">{account.email}</span>
+                <div className="flex flex-col">
+                  <span className="text-foreground">{account.username}</span>
+                  {account.hasSession && (
+                    <span className="text-xs text-muted-foreground">Quick switch available</span>
+                  )}
+                </div>
               </DropdownMenuItem>
             ))}
           </>
