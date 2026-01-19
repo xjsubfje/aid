@@ -179,52 +179,65 @@ export const AccountSwitcher = () => {
     if (!account?.email) return;
     if (account.email === currentEmail) return;
 
-    if (account.tokens?.accessToken && account.tokens?.refreshToken) {
+    const refreshToken = account.tokens?.refreshToken;
+
+    if (!refreshToken) {
+      // No refresh token stored for this account -> require password
+      localStorage.setItem("switch_to_email", account.email);
       toast({
-        title: "Switching account",
-        description: `Switching to ${account.username || account.email}...`,
+        title: "Sign in required",
+        description: `Please sign in as ${account.username || account.email}.`,
       });
-
-      const { error } = await supabase.auth.setSession({
-        access_token: account.tokens.accessToken,
-        refresh_token: account.tokens.refreshToken,
-      });
-
-      if (error) {
-        // Fallback to manual login
-        localStorage.setItem("switch_to_email", account.email);
-        toast({
-          variant: "destructive",
-          title: "Quick switch failed",
-          description: "Please sign in again to continue.",
-        });
-        navigate(`/auth?mode=switch&email=${encodeURIComponent(account.email)}`);
-        return;
-      }
-
-      navigate("/");
+      navigate(`/auth?mode=switch&email=${encodeURIComponent(account.email)}`);
       return;
     }
 
-    // No tokens stored for this account -> require password
-    localStorage.setItem("switch_to_email", account.email);
     toast({
-      title: "Sign in required",
-      description: `Please sign in as ${account.username || account.email}.`,
+      title: "Switching account",
+      description: `Switching to ${account.username || account.email}...`,
     });
-    navigate(`/auth?mode=switch&email=${encodeURIComponent(account.email)}`);
+
+    // Use refresh token to avoid failures when the stored access token is expired.
+    const { data, error } = await supabase.auth.refreshSession({
+      refresh_token: refreshToken,
+    });
+
+    const session = data?.session;
+
+    if (error || !session?.user?.id || !session.user.email) {
+      localStorage.setItem("switch_to_email", account.email);
+      toast({
+        variant: "destructive",
+        title: "Quick switch failed",
+        description: "Please sign in again to continue.",
+      });
+      navigate(`/auth?mode=switch&email=${encodeURIComponent(account.email)}`);
+      return;
+    }
+
+    const username = await fetchUsername(session.user.id, session.user.email);
+
+    upsertAccount({
+      userId: session.user.id,
+      email: session.user.email,
+      username,
+      lastUsed: new Date().toISOString(),
+      tokens: {
+        accessToken: session.access_token,
+        refreshToken: session.refresh_token,
+        expiresAt: session.expires_at,
+      },
+    });
+
+    toast({
+      title: "Account switched",
+      description: `You're now signed in as ${username || session.user.email}.`,
+    });
+
+    navigate("/");
   };
 
   const handleLogout = async () => {
-    // Remove tokens for current user so quick switch isn't possible after explicit logout.
-    setAccounts((prev) => {
-      const next = prev.map((a) =>
-        a.email === currentEmail ? { ...a, tokens: undefined, lastUsed: new Date().toISOString() } : a
-      );
-      saveAccountsToStorage(next);
-      return next;
-    });
-
     await supabase.auth.signOut();
     toast({
       title: "Signed out",
@@ -280,7 +293,7 @@ export const AccountSwitcher = () => {
             <DropdownMenuLabel className="text-foreground">Other Accounts</DropdownMenuLabel>
             {recentAccounts.map((account) => {
               const initial = (account.username || account.email)?.[0]?.toUpperCase() || "U";
-              const canQuickSwitch = Boolean(account.tokens?.refreshToken && account.tokens?.accessToken);
+              const canQuickSwitch = Boolean(account.tokens?.refreshToken);
 
               return (
                 <DropdownMenuItem

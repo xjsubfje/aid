@@ -19,8 +19,9 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Save, Volume2, Moon, Sun, Monitor, Trash2 } from "lucide-react";
+import { ArrowLeft, Save, Volume2, Moon, Sun, Monitor, Trash2, Download } from "lucide-react";
 import { useSettings, voiceOptions, languageOptions } from "@/contexts/SettingsContext";
+import { downloadMyData } from "@/lib/exportUserData";
 
 const Settings = () => {
   const { settings, updateSettings, isLoading } = useSettings();
@@ -28,6 +29,7 @@ const Settings = () => {
   const [saving, setSaving] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [deleting, setDeleting] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -62,6 +64,25 @@ const Settings = () => {
         return <Moon className="h-4 w-4" />;
       default:
         return <Monitor className="h-4 w-4" />;
+    }
+  };
+
+  const handleDownloadMyData = async () => {
+    setExporting(true);
+    try {
+      const filename = await downloadMyData();
+      toast({
+        title: "Download started",
+        description: `Your data is downloading as ${filename}`,
+      });
+    } catch (e: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: e?.message || "Failed to download your data.",
+      });
+    } finally {
+      setExporting(false);
     }
   };
 
@@ -277,6 +298,30 @@ const Settings = () => {
                     onCheckedChange={(checked) => setLocalSettings({ ...localSettings, notificationsEnabled: checked })}
                   />
                 </div>
+              </CardContent>
+            </Card>
+
+            {/* Your Data */}
+            <Card className="bg-gradient-card backdrop-blur-sm border-primary/20">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Download className="h-5 w-5" />
+                  Your Data
+                </CardTitle>
+                <CardDescription>Download a JSON export of your data</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button
+                  variant="outline"
+                  onClick={() => void handleDownloadMyData()}
+                  disabled={exporting}
+                  className="w-full border-primary/20 hover:bg-primary/10"
+                >
+                  {exporting ? "Preparing..." : "Download my data"}
+                </Button>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  This creates a local file on this device. Nothing is uploaded.
+                </p>
               </CardContent>
             </Card>
 
