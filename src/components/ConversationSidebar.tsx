@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "./ui/button";
 import { ScrollArea } from "./ui/scroll-area";
@@ -32,6 +33,7 @@ export const ConversationSidebar = ({
   onSelectConversation,
   onNewConversation,
 }: ConversationSidebarProps) => {
+  const { t } = useTranslation();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [conversationToDelete, setConversationToDelete] = useState<string | null>(null);
@@ -70,8 +72,8 @@ export const ConversationSidebar = ({
     if (messagesError) {
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "Failed to delete conversation messages",
+        title: t("common.error"),
+        description: t("common.error"),
       });
       return;
     }
@@ -85,13 +87,13 @@ export const ConversationSidebar = ({
     if (error) {
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "Failed to delete conversation",
+        title: t("common.error"),
+        description: t("common.error"),
       });
     } else {
       toast({
-        title: "Conversation deleted",
-        description: "Your conversation has been removed.",
+        title: t("conversations.deleted"),
+        description: t("conversations.deletedDescription"),
       });
       fetchConversations();
       if (currentConversationId === conversationToDelete) {
@@ -111,7 +113,7 @@ export const ConversationSidebar = ({
           className="w-full bg-gradient-primary text-foreground hover:opacity-90"
         >
           <Plus className="mr-2 h-4 w-4" />
-          New Chat
+          {t("nav.newChat")}
         </Button>
       </div>
       <ScrollArea className="flex-1 p-2">
@@ -133,7 +135,7 @@ export const ConversationSidebar = ({
               <Button
                 variant="ghost"
                 size="icon"
-                aria-label="Delete conversation"
+                aria-label={t("common.delete")}
                 className="h-6 w-6 text-destructive hover:bg-destructive/10 rounded transition-colors"
                 onClick={(e) => confirmDelete(conv.id, e)}
               >
@@ -147,15 +149,15 @@ export const ConversationSidebar = ({
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete conversation?</AlertDialogTitle>
+            <AlertDialogTitle>{t("conversations.deleteTitle")}</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete this conversation and all its messages. This action cannot be undone.
+              {t("conversations.deleteDescription")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
             <AlertDialogAction onClick={deleteConversation} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              Delete
+              {t("common.delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

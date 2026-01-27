@@ -1,0 +1,152 @@
+{
+  "common": {
+    "back": "Indietro",
+    "cancel": "Annulla",
+    "save": "Salva",
+    "delete": "Elimina",
+    "loading": "Caricamento...",
+    "error": "Errore",
+    "success": "Successo"
+  },
+  "nav": {
+    "virtualAssistant": "Assistente Virtuale",
+    "aiCompanion": "Il tuo compagno IA",
+    "newChat": "Nuova Chat",
+    "chatHistory": "Cronologia Chat",
+    "deleteAllHistory": "Elimina Tutta la Cronologia",
+    "tasks": "Attività",
+    "settings": "Impostazioni",
+    "backToDashboard": "Torna alla Dashboard"
+  },
+  "chat": {
+    "greeting": "Come posso aiutarti oggi?",
+    "greetingSubtitle": "Sono il tuo compagno IA, pronto ad aiutarti con attività, promemoria e altro.",
+    "stop": "Ferma",
+    "listen": "Ascolta",
+    "thinking": "Sto pensando...",
+    "askAnything": "Chiedimi qualsiasi cosa...",
+    "quickActions": {
+      "setReminder": "Imposta un promemoria",
+      "checkWeather": "Controlla il meteo",
+      "myTasks": "Le mie attività"
+    },
+    "deleteAllTitle": "Eliminare tutta la cronologia delle chat?",
+    "deleteAllDescription": "Questo eliminerà permanentemente tutte le tue conversazioni e messaggi. Questa azione non può essere annullata.",
+    "deleteAll": "Elimina Tutto",
+    "historyCleared": "Cronologia eliminata",
+    "historyDescription": "Tutte le conversazioni sono state eliminate."
+  },
+  "tasks": {
+    "title": "Gestione Attività",
+    "addTask": "Aggiungi Attività",
+    "createNew": "Crea Nuova Attività",
+    "taskTitle": "Titolo",
+    "taskTitlePlaceholder": "Titolo dell'attività",
+    "description": "Descrizione",
+    "descriptionPlaceholder": "Descrizione dell'attività (opzionale)",
+    "dueDate": "Data di Scadenza",
+    "createTask": "Crea Attività",
+    "noTasks": "Nessuna attività ancora. Crea la tua prima attività!",
+    "taskAdded": "Attività aggiunta",
+    "taskAddedWithReminder": "Attività aggiunta con promemoria",
+    "taskCreated": "La tua attività è stata creata con successo.",
+    "taskReminder": "Sarai avvisato quando questa attività scade!",
+    "taskDeleted": "Attività eliminata",
+    "taskRemoved": "La tua attività è stata rimossa."
+  },
+  "settings": {
+    "title": "Impostazioni",
+    "appearance": {
+      "title": "Aspetto",
+      "description": "Personalizza l'aspetto dell'app",
+      "theme": "Tema",
+      "light": "chiaro",
+      "dark": "scuro",
+      "auto": "automatico",
+      "autoDescription": "Il tema seguirà le preferenze del tuo sistema",
+      "usingMode": "Utilizzo della modalità {{mode}}"
+    },
+    "voice": {
+      "title": "Impostazioni Vocali",
+      "description": "Personalizza la voce di sintesi vocale",
+      "voice": "Voce",
+      "voiceHint": "Questa voce verrà utilizzata quando clicchi su \"Ascolta\" sui messaggi IA"
+    },
+    "language": {
+      "title": "Lingua e Regione",
+      "description": "Imposta la tua lingua preferita",
+      "label": "Lingua",
+      "hint": "L'interfaccia e l'assistente IA utilizzeranno questa lingua"
+    },
+    "notifications": {
+      "title": "Notifiche",
+      "description": "Gestisci le preferenze delle notifiche",
+      "taskReminders": "Promemoria Attività",
+      "taskRemindersHint": "Ricevi notifiche del browser per i promemoria delle attività"
+    },
+    "data": {
+      "title": "I Tuoi Dati",
+      "description": "Scarica un'esportazione JSON dei tuoi dati",
+      "download": "Scarica i miei dati",
+      "preparing": "Preparazione...",
+      "hint": "Questo crea un file locale su questo dispositivo. Niente viene caricato.",
+      "downloadStarted": "Download avviato",
+      "downloadingAs": "I tuoi dati vengono scaricati come {{filename}}"
+    },
+    "danger": {
+      "title": "Zona Pericolosa",
+      "description": "Questa azione è permanente e non può essere annullata.",
+      "deleteAccount": "Elimina account permanentemente",
+      "deleting": "Eliminazione...",
+      "deleteTitle": "Eliminare il tuo account?",
+      "deleteDescription": "Questo eliminerà permanentemente il tuo account e tutti i tuoi dati. Per confermare, digita DELETE qui sotto.",
+      "typeDelete": "Digita DELETE per confermare",
+      "deletePermanently": "Elimina permanentemente",
+      "accountDeleted": "Account eliminato",
+      "accountDeletedDescription": "Il tuo account è stato eliminato permanentemente."
+    },
+    "saving": "Salvataggio...",
+    "saveSettings": "Salva Impostazioni",
+    "settingsSaved": "Impostazioni salvate",
+    "settingsSavedDescription": "Le tue preferenze sono state aggiornate."
+  },
+  "auth": {
+    "welcome": "Benvenuto nel tuo Assistente Virtuale",
+    "switchAccount": "Cambia account",
+    "signInToSwitch": "Accedi per passare a questo account.",
+    "welcomeBack": "Bentornato! Accedi per continuare.",
+    "createAccount": "Crea il tuo account per iniziare.",
+    "username": "Nome utente",
+    "usernamePlaceholder": "Inserisci il tuo nome utente",
+    "email": "E-mail",
+    "emailPlaceholder": "Inserisci la tua e-mail",
+    "password": "Password",
+    "passwordPlaceholder": "Inserisci la tua password",
+    "signIn": "Accedi",
+    "signUp": "Registrati",
+    "noAccount": "Non hai un account? Registrati",
+    "hasAccount": "Hai già un account? Accedi",
+    "switchHint": "Puoi accedere qui in sicurezza per aggiungere/cambiare account senza disconnetterti prima.",
+    "accountCreated": "Account creato!",
+    "accountCreatedDescription": "Benvenuto nel tuo Assistente Virtuale.",
+    "accountSwitched": "Account cambiato",
+    "accountSwitchedDescription": "Ora sei connesso all'account selezionato.",
+    "welcomeBackTitle": "Bentornato!",
+    "welcomeBackDescription": "Hai effettuato l'accesso con successo."
+  },
+  "conversations": {
+    "deleteTitle": "Eliminare la conversazione?",
+    "deleteDescription": "Questo eliminerà permanentemente questa conversazione e tutti i suoi messaggi.",
+    "deleted": "Conversazione eliminata",
+    "deletedDescription": "La tua conversazione è stata rimossa."
+  },
+  "account": {
+    "currentAccount": "Account attuale",
+    "recentAccounts": "Account recenti",
+    "noRecentAccounts": "Nessun altro account salvato su questo dispositivo.",
+    "addAccount": "Aggiungi account",
+    "signOut": "Esci",
+    "signingOut": "Disconnessione...",
+    "removeFromDevice": "Rimuovi da questo dispositivo"
+  }
+}

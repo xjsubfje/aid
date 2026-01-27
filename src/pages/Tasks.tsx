@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,6 +21,7 @@ interface Task {
 }
 
 const Tasks = () => {
+  const { t } = useTranslation();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [title, setTitle] = useState("");
@@ -42,8 +44,8 @@ const Tasks = () => {
     if (error) {
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "Failed to fetch tasks",
+        title: t("common.error"),
+        description: t("common.error"),
       });
     } else {
       setTasks(data || []);
@@ -70,7 +72,7 @@ const Tasks = () => {
     if (error) {
       toast({
         variant: "destructive",
-        title: "Error",
+        title: t("common.error"),
         description: error.message,
       });
     } else {
@@ -80,13 +82,13 @@ const Tasks = () => {
         scheduleReminder(title, description, dueDateObj);
         
         toast({
-          title: "Task added with reminder",
-          description: "You'll be notified when this task is due!",
+          title: t("tasks.taskAddedWithReminder"),
+          description: t("tasks.taskReminder"),
         });
       } else {
         toast({
-          title: "Task added",
-          description: "Your task has been created successfully.",
+          title: t("tasks.taskAdded"),
+          description: t("tasks.taskCreated"),
         });
       }
       
@@ -109,8 +111,8 @@ const Tasks = () => {
     if (error) {
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "Failed to update task",
+        title: t("common.error"),
+        description: t("common.error"),
       });
     } else {
       fetchTasks();
@@ -123,13 +125,13 @@ const Tasks = () => {
     if (error) {
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "Failed to delete task",
+        title: t("common.error"),
+        description: t("common.error"),
       });
     } else {
       toast({
-        title: "Task deleted",
-        description: "Your task has been removed.",
+        title: t("tasks.taskDeleted"),
+        description: t("tasks.taskRemoved"),
       });
       fetchTasks();
     }
@@ -144,30 +146,30 @@ const Tasks = () => {
           <div className="container mx-auto px-4 py-4 flex justify-between items-center">
             <Button variant="ghost" onClick={() => navigate("/")} className="gap-2">
               <ArrowLeft className="h-4 w-4" />
-              Back to Dashboard
+              {t("nav.backToDashboard")}
             </Button>
             <Button onClick={() => setShowForm(!showForm)} className="bg-gradient-primary">
               <Plus className="mr-2 h-4 w-4" />
-              Add Task
+              {t("tasks.addTask")}
             </Button>
           </div>
         </header>
 
         <main className="container mx-auto px-4 py-8">
-          <h1 className="text-3xl font-bold mb-8">Task Management</h1>
+          <h1 className="text-3xl font-bold mb-8">{t("tasks.title")}</h1>
 
           {showForm && (
             <Card className="mb-8 bg-gradient-card backdrop-blur-sm border-primary/20">
               <CardHeader>
-                <CardTitle>Create New Task</CardTitle>
+                <CardTitle>{t("tasks.createNew")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleAddTask} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="title">Title</Label>
+                    <Label htmlFor="title">{t("tasks.taskTitle")}</Label>
                     <Input
                       id="title"
-                      placeholder="Task title"
+                      placeholder={t("tasks.taskTitlePlaceholder")}
                       value={title}
                       onChange={(e) => setTitle(e.target.value)}
                       required
@@ -175,17 +177,17 @@ const Tasks = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="description">Description</Label>
+                    <Label htmlFor="description">{t("tasks.description")}</Label>
                     <Textarea
                       id="description"
-                      placeholder="Task description (optional)"
+                      placeholder={t("tasks.descriptionPlaceholder")}
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
                       className="bg-secondary/50 border-primary/20"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="dueDate">Due Date</Label>
+                    <Label htmlFor="dueDate">{t("tasks.dueDate")}</Label>
                     <Input
                       id="dueDate"
                       type="datetime-local"
@@ -196,10 +198,10 @@ const Tasks = () => {
                   </div>
                   <div className="flex gap-2">
                     <Button type="submit" disabled={loading} className="bg-gradient-primary">
-                      Create Task
+                      {t("tasks.createTask")}
                     </Button>
                     <Button type="button" variant="outline" onClick={() => setShowForm(false)}>
-                      Cancel
+                      {t("common.cancel")}
                     </Button>
                   </div>
                 </form>
@@ -211,7 +213,7 @@ const Tasks = () => {
             {tasks.length === 0 ? (
               <Card className="bg-gradient-card backdrop-blur-sm border-primary/20">
                 <CardContent className="py-12 text-center">
-                  <p className="text-muted-foreground">No tasks yet. Create your first task!</p>
+                  <p className="text-muted-foreground">{t("tasks.noTasks")}</p>
                 </CardContent>
               </Card>
             ) : (

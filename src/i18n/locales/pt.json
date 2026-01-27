@@ -1,0 +1,152 @@
+{
+  "common": {
+    "back": "Voltar",
+    "cancel": "Cancelar",
+    "save": "Salvar",
+    "delete": "Excluir",
+    "loading": "Carregando...",
+    "error": "Erro",
+    "success": "Sucesso"
+  },
+  "nav": {
+    "virtualAssistant": "Assistente Virtual",
+    "aiCompanion": "Seu companheiro de IA",
+    "newChat": "Nova Conversa",
+    "chatHistory": "Histórico de Conversas",
+    "deleteAllHistory": "Excluir Todo o Histórico",
+    "tasks": "Tarefas",
+    "settings": "Configurações",
+    "backToDashboard": "Voltar ao Painel"
+  },
+  "chat": {
+    "greeting": "Como posso ajudá-lo hoje?",
+    "greetingSubtitle": "Sou seu companheiro de IA, pronto para ajudar com tarefas, lembretes e muito mais.",
+    "stop": "Parar",
+    "listen": "Ouvir",
+    "thinking": "Pensando...",
+    "askAnything": "Pergunte-me qualquer coisa...",
+    "quickActions": {
+      "setReminder": "Criar um lembrete",
+      "checkWeather": "Verificar o tempo",
+      "myTasks": "Minhas tarefas"
+    },
+    "deleteAllTitle": "Excluir todo o histórico de conversas?",
+    "deleteAllDescription": "Isso excluirá permanentemente todas as suas conversas e mensagens. Esta ação não pode ser desfeita.",
+    "deleteAll": "Excluir Tudo",
+    "historyCleared": "Histórico limpo",
+    "historyDescription": "Todas as conversas foram excluídas."
+  },
+  "tasks": {
+    "title": "Gerenciamento de Tarefas",
+    "addTask": "Adicionar Tarefa",
+    "createNew": "Criar Nova Tarefa",
+    "taskTitle": "Título",
+    "taskTitlePlaceholder": "Título da tarefa",
+    "description": "Descrição",
+    "descriptionPlaceholder": "Descrição da tarefa (opcional)",
+    "dueDate": "Data de Vencimento",
+    "createTask": "Criar Tarefa",
+    "noTasks": "Ainda não há tarefas. Crie sua primeira tarefa!",
+    "taskAdded": "Tarefa adicionada",
+    "taskAddedWithReminder": "Tarefa adicionada com lembrete",
+    "taskCreated": "Sua tarefa foi criada com sucesso.",
+    "taskReminder": "Você será notificado quando esta tarefa vencer!",
+    "taskDeleted": "Tarefa excluída",
+    "taskRemoved": "Sua tarefa foi removida."
+  },
+  "settings": {
+    "title": "Configurações",
+    "appearance": {
+      "title": "Aparência",
+      "description": "Personalize a aparência do aplicativo",
+      "theme": "Tema",
+      "light": "claro",
+      "dark": "escuro",
+      "auto": "automático",
+      "autoDescription": "O tema seguirá a preferência do seu sistema",
+      "usingMode": "Usando modo {{mode}}"
+    },
+    "voice": {
+      "title": "Configurações de Voz",
+      "description": "Personalize a voz de texto para fala",
+      "voice": "Voz",
+      "voiceHint": "Esta voz será usada quando você clicar em \"Ouvir\" nas mensagens de IA"
+    },
+    "language": {
+      "title": "Idioma e Região",
+      "description": "Defina seu idioma preferido",
+      "label": "Idioma",
+      "hint": "A interface e o assistente de IA usarão este idioma"
+    },
+    "notifications": {
+      "title": "Notificações",
+      "description": "Gerencie as preferências de notificações",
+      "taskReminders": "Lembretes de Tarefas",
+      "taskRemindersHint": "Receba notificações do navegador para lembretes de tarefas"
+    },
+    "data": {
+      "title": "Seus Dados",
+      "description": "Baixe uma exportação JSON dos seus dados",
+      "download": "Baixar meus dados",
+      "preparing": "Preparando...",
+      "hint": "Isso cria um arquivo local neste dispositivo. Nada é enviado.",
+      "downloadStarted": "Download iniciado",
+      "downloadingAs": "Seus dados estão sendo baixados como {{filename}}"
+    },
+    "danger": {
+      "title": "Zona de Perigo",
+      "description": "Esta ação é permanente e não pode ser desfeita.",
+      "deleteAccount": "Excluir conta permanentemente",
+      "deleting": "Excluindo...",
+      "deleteTitle": "Excluir sua conta?",
+      "deleteDescription": "Isso excluirá permanentemente sua conta e todos os seus dados. Para confirmar, digite DELETE abaixo.",
+      "typeDelete": "Digite DELETE para confirmar",
+      "deletePermanently": "Excluir permanentemente",
+      "accountDeleted": "Conta excluída",
+      "accountDeletedDescription": "Sua conta foi excluída permanentemente."
+    },
+    "saving": "Salvando...",
+    "saveSettings": "Salvar Configurações",
+    "settingsSaved": "Configurações salvas",
+    "settingsSavedDescription": "Suas preferências foram atualizadas."
+  },
+  "auth": {
+    "welcome": "Bem-vindo ao seu Assistente Virtual",
+    "switchAccount": "Trocar conta",
+    "signInToSwitch": "Faça login para trocar para esta conta.",
+    "welcomeBack": "Bem-vindo de volta! Faça login para continuar.",
+    "createAccount": "Crie sua conta para começar.",
+    "username": "Nome de usuário",
+    "usernamePlaceholder": "Digite seu nome de usuário",
+    "email": "E-mail",
+    "emailPlaceholder": "Digite seu e-mail",
+    "password": "Senha",
+    "passwordPlaceholder": "Digite sua senha",
+    "signIn": "Entrar",
+    "signUp": "Cadastrar",
+    "noAccount": "Não tem conta? Cadastre-se",
+    "hasAccount": "Já tem conta? Entre",
+    "switchHint": "Você pode fazer login aqui com segurança para adicionar/trocar contas sem sair primeiro.",
+    "accountCreated": "Conta criada!",
+    "accountCreatedDescription": "Bem-vindo ao seu Assistente Virtual.",
+    "accountSwitched": "Conta trocada",
+    "accountSwitchedDescription": "Você agora está conectado à conta selecionada.",
+    "welcomeBackTitle": "Bem-vindo de volta!",
+    "welcomeBackDescription": "Você entrou com sucesso."
+  },
+  "conversations": {
+    "deleteTitle": "Excluir conversa?",
+    "deleteDescription": "Isso excluirá permanentemente esta conversa e todas as suas mensagens.",
+    "deleted": "Conversa excluída",
+    "deletedDescription": "Sua conversa foi removida."
+  },
+  "account": {
+    "currentAccount": "Conta atual",
+    "recentAccounts": "Contas recentes",
+    "noRecentAccounts": "Nenhuma outra conta salva neste dispositivo.",
+    "addAccount": "Adicionar conta",
+    "signOut": "Sair",
+    "signingOut": "Saindo...",
+    "removeFromDevice": "Remover deste dispositivo"
+  }
+}

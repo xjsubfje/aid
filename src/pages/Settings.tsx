@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,6 +25,7 @@ import { useSettings, voiceOptions, languageOptions } from "@/contexts/SettingsC
 import { downloadMyData } from "@/lib/exportUserData";
 
 const Settings = () => {
+  const { t } = useTranslation();
   const { settings, updateSettings, isLoading } = useSettings();
   const [localSettings, setLocalSettings] = useState(settings);
   const [saving, setSaving] = useState(false);
@@ -43,14 +45,14 @@ const Settings = () => {
     try {
       await updateSettings(localSettings);
       toast({
-        title: "Settings saved",
-        description: "Your preferences have been updated.",
+        title: t("settings.settingsSaved"),
+        description: t("settings.settingsSavedDescription"),
       });
     } catch {
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "Failed to save settings",
+        title: t("common.error"),
+        description: t("common.error"),
       });
     }
     setSaving(false);
@@ -72,14 +74,14 @@ const Settings = () => {
     try {
       const filename = await downloadMyData();
       toast({
-        title: "Download started",
-        description: `Your data is downloading as ${filename}`,
+        title: t("settings.data.downloadStarted"),
+        description: t("settings.data.downloadingAs", { filename }),
       });
     } catch (e: any) {
       toast({
         variant: "destructive",
-        title: "Error",
-        description: e?.message || "Failed to download your data.",
+        title: t("common.error"),
+        description: e?.message || t("common.error"),
       });
     } finally {
       setExporting(false);
@@ -129,16 +131,16 @@ const Settings = () => {
       await supabase.auth.signOut();
 
       toast({
-        title: "Account deleted",
-        description: "Your account has been permanently deleted.",
+        title: t("settings.danger.accountDeleted"),
+        description: t("settings.danger.accountDeletedDescription"),
       });
 
       navigate("/auth");
     } catch (e: any) {
       toast({
         variant: "destructive",
-        title: "Error",
-        description: e?.message || "Failed to delete account.",
+        title: t("common.error"),
+        description: e?.message || t("common.error"),
       });
     } finally {
       setDeleting(false);
@@ -149,7 +151,7 @@ const Settings = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-pulse text-muted-foreground">Loading settings...</div>
+        <div className="animate-pulse text-muted-foreground">{t("common.loading")}</div>
       </div>
     );
   }
@@ -163,13 +165,13 @@ const Settings = () => {
           <div className="container mx-auto px-4 py-4">
             <Button variant="ghost" onClick={() => navigate("/")} className="gap-2">
               <ArrowLeft className="h-4 w-4" />
-              Back to Dashboard
+              {t("nav.backToDashboard")}
             </Button>
           </div>
         </header>
 
         <main className="container mx-auto px-4 py-8">
-          <h1 className="text-3xl font-bold mb-8 text-foreground">Settings</h1>
+          <h1 className="text-3xl font-bold mb-8 text-foreground">{t("settings.title")}</h1>
 
           <div className="max-w-2xl space-y-6">
             {/* Appearance */}
@@ -177,13 +179,13 @@ const Settings = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   {getThemeIcon(localSettings.theme)}
-                  Appearance
+                  {t("settings.appearance.title")}
                 </CardTitle>
-                <CardDescription>Customize how the app looks</CardDescription>
+                <CardDescription>{t("settings.appearance.description")}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label>Theme</Label>
+                  <Label>{t("settings.appearance.theme")}</Label>
                   <div className="flex gap-2">
                     {(["light", "dark", "auto"] as const).map((theme) => (
                       <Button
@@ -204,14 +206,14 @@ const Settings = () => {
                         {theme === "light" && <Sun className="h-4 w-4 mr-2" />}
                         {theme === "dark" && <Moon className="h-4 w-4 mr-2" />}
                         {theme === "auto" && <Monitor className="h-4 w-4 mr-2" />}
-                        {theme}
+                        {t(`settings.appearance.${theme}`)}
                       </Button>
                     ))}
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">
                     {localSettings.theme === "auto"
-                      ? "Theme will match your system preference"
-                      : `Using ${localSettings.theme} mode`}
+                      ? t("settings.appearance.autoDescription")
+                      : t("settings.appearance.usingMode", { mode: t(`settings.appearance.${localSettings.theme}`) })}
                   </p>
                 </div>
               </CardContent>
@@ -222,13 +224,13 @@ const Settings = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Volume2 className="h-5 w-5" />
-                  Voice Settings
+                  {t("settings.voice.title")}
                 </CardTitle>
-                <CardDescription>Customize the text-to-speech voice</CardDescription>
+                <CardDescription>{t("settings.voice.description")}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="voiceType">Voice</Label>
+                  <Label htmlFor="voiceType">{t("settings.voice.voice")}</Label>
                   <Select
                     value={localSettings.voiceType}
                     onValueChange={(value) => setLocalSettings({ ...localSettings, voiceType: value })}
@@ -245,7 +247,7 @@ const Settings = () => {
                     </SelectContent>
                   </Select>
                   <p className="text-xs text-muted-foreground">
-                    This voice will be used when you click "Listen" on AI messages
+                    {t("settings.voice.voiceHint")}
                   </p>
                 </div>
               </CardContent>
@@ -254,12 +256,12 @@ const Settings = () => {
             {/* Language & Region */}
             <Card className="bg-gradient-card backdrop-blur-sm border-primary/20">
               <CardHeader>
-                <CardTitle>Language & Region</CardTitle>
-                <CardDescription>Set your preferred language for the assistant</CardDescription>
+                <CardTitle>{t("settings.language.title")}</CardTitle>
+                <CardDescription>{t("settings.language.description")}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="language">Assistant Language</Label>
+                  <Label htmlFor="language">{t("settings.language.label")}</Label>
                   <Select
                     value={localSettings.language}
                     onValueChange={(value) => setLocalSettings({ ...localSettings, language: value })}
@@ -275,7 +277,7 @@ const Settings = () => {
                       ))}
                     </SelectContent>
                   </Select>
-                  <p className="text-xs text-muted-foreground">The AI assistant will respond in this language</p>
+                  <p className="text-xs text-muted-foreground">{t("settings.language.hint")}</p>
                 </div>
               </CardContent>
             </Card>
@@ -283,14 +285,14 @@ const Settings = () => {
             {/* Notifications */}
             <Card className="bg-gradient-card backdrop-blur-sm border-primary/20">
               <CardHeader>
-                <CardTitle>Notifications</CardTitle>
-                <CardDescription>Manage notification preferences</CardDescription>
+                <CardTitle>{t("settings.notifications.title")}</CardTitle>
+                <CardDescription>{t("settings.notifications.description")}</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
-                    <Label htmlFor="notifications">Task Reminders</Label>
-                    <p className="text-sm text-muted-foreground">Receive browser notifications for task reminders</p>
+                    <Label htmlFor="notifications">{t("settings.notifications.taskReminders")}</Label>
+                    <p className="text-sm text-muted-foreground">{t("settings.notifications.taskRemindersHint")}</p>
                   </div>
                   <Switch
                     id="notifications"
@@ -306,9 +308,9 @@ const Settings = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Download className="h-5 w-5" />
-                  Your Data
+                  {t("settings.data.title")}
                 </CardTitle>
-                <CardDescription>Download a JSON export of your data</CardDescription>
+                <CardDescription>{t("settings.data.description")}</CardDescription>
               </CardHeader>
               <CardContent>
                 <Button
@@ -317,10 +319,10 @@ const Settings = () => {
                   disabled={exporting}
                   className="w-full border-primary/20 hover:bg-primary/10"
                 >
-                  {exporting ? "Preparing..." : "Download my data"}
+                  {exporting ? t("settings.data.preparing") : t("settings.data.download")}
                 </Button>
                 <p className="mt-2 text-xs text-muted-foreground">
-                  This creates a local file on this device. Nothing is uploaded.
+                  {t("settings.data.hint")}
                 </p>
               </CardContent>
             </Card>
@@ -330,28 +332,27 @@ const Settings = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-destructive">
                   <Trash2 className="h-5 w-5" />
-                  Danger Zone
+                  {t("settings.danger.title")}
                 </CardTitle>
-                <CardDescription>This action is permanent and cannot be undone.</CardDescription>
+                <CardDescription>{t("settings.danger.description")}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button variant="destructive" className="w-full" disabled={deleting}>
-                      {deleting ? "Deleting..." : "Delete account permanently"}
+                      {deleting ? t("settings.danger.deleting") : t("settings.danger.deleteAccount")}
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
-                      <AlertDialogTitle>Delete your account?</AlertDialogTitle>
+                      <AlertDialogTitle>{t("settings.danger.deleteTitle")}</AlertDialogTitle>
                       <AlertDialogDescription>
-                        This will permanently delete your account and remove your data. To confirm, type <b>DELETE</b>
-                        below.
+                        {t("settings.danger.deleteDescription")}
                       </AlertDialogDescription>
                     </AlertDialogHeader>
 
                     <div className="space-y-2">
-                      <Label htmlFor="delete-confirm">Type DELETE to confirm</Label>
+                      <Label htmlFor="delete-confirm">{t("settings.danger.typeDelete")}</Label>
                       <Input
                         id="delete-confirm"
                         value={deleteConfirmText}
@@ -361,7 +362,7 @@ const Settings = () => {
                     </div>
 
                     <AlertDialogFooter>
-                      <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+                      <AlertDialogCancel disabled={deleting}>{t("common.cancel")}</AlertDialogCancel>
                       <AlertDialogAction
                         onClick={(e) => {
                           e.preventDefault();
@@ -370,7 +371,7 @@ const Settings = () => {
                         disabled={deleting || deleteConfirmText !== "DELETE"}
                         className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                       >
-                        Delete permanently
+                        {t("settings.danger.deletePermanently")}
                       </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
@@ -385,7 +386,7 @@ const Settings = () => {
               size="lg"
             >
               <Save className="mr-2 h-4 w-4" />
-              {saving ? "Saving..." : "Save Settings"}
+              {saving ? t("settings.saving") : t("settings.saveSettings")}
             </Button>
           </div>
         </main>

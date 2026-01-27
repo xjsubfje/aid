@@ -1,0 +1,152 @@
+{
+  "common": {
+    "back": "Zurück",
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "delete": "Löschen",
+    "loading": "Wird geladen...",
+    "error": "Fehler",
+    "success": "Erfolg"
+  },
+  "nav": {
+    "virtualAssistant": "Virtueller Assistent",
+    "aiCompanion": "Ihr KI-Begleiter",
+    "newChat": "Neuer Chat",
+    "chatHistory": "Chat-Verlauf",
+    "deleteAllHistory": "Gesamten Verlauf Löschen",
+    "tasks": "Aufgaben",
+    "settings": "Einstellungen",
+    "backToDashboard": "Zurück zum Dashboard"
+  },
+  "chat": {
+    "greeting": "Wie kann ich Ihnen heute helfen?",
+    "greetingSubtitle": "Ich bin Ihr KI-Begleiter, bereit, Ihnen bei Aufgaben, Erinnerungen und mehr zu helfen.",
+    "stop": "Stopp",
+    "listen": "Anhören",
+    "thinking": "Denke nach...",
+    "askAnything": "Fragen Sie mich etwas...",
+    "quickActions": {
+      "setReminder": "Erinnerung erstellen",
+      "checkWeather": "Wetter prüfen",
+      "myTasks": "Meine Aufgaben"
+    },
+    "deleteAllTitle": "Gesamten Chat-Verlauf löschen?",
+    "deleteAllDescription": "Dies löscht dauerhaft alle Ihre Unterhaltungen und Nachrichten. Diese Aktion kann nicht rückgängig gemacht werden.",
+    "deleteAll": "Alles Löschen",
+    "historyCleared": "Verlauf gelöscht",
+    "historyDescription": "Alle Unterhaltungen wurden gelöscht."
+  },
+  "tasks": {
+    "title": "Aufgabenverwaltung",
+    "addTask": "Aufgabe Hinzufügen",
+    "createNew": "Neue Aufgabe Erstellen",
+    "taskTitle": "Titel",
+    "taskTitlePlaceholder": "Aufgabentitel",
+    "description": "Beschreibung",
+    "descriptionPlaceholder": "Aufgabenbeschreibung (optional)",
+    "dueDate": "Fälligkeitsdatum",
+    "createTask": "Aufgabe Erstellen",
+    "noTasks": "Noch keine Aufgaben. Erstellen Sie Ihre erste Aufgabe!",
+    "taskAdded": "Aufgabe hinzugefügt",
+    "taskAddedWithReminder": "Aufgabe mit Erinnerung hinzugefügt",
+    "taskCreated": "Ihre Aufgabe wurde erfolgreich erstellt.",
+    "taskReminder": "Sie werden benachrichtigt, wenn diese Aufgabe fällig ist!",
+    "taskDeleted": "Aufgabe gelöscht",
+    "taskRemoved": "Ihre Aufgabe wurde entfernt."
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "appearance": {
+      "title": "Erscheinungsbild",
+      "description": "Passen Sie das Aussehen der App an",
+      "theme": "Design",
+      "light": "hell",
+      "dark": "dunkel",
+      "auto": "automatisch",
+      "autoDescription": "Das Design passt sich Ihrer Systemeinstellung an",
+      "usingMode": "{{mode}}-Modus wird verwendet"
+    },
+    "voice": {
+      "title": "Spracheinstellungen",
+      "description": "Passen Sie die Text-zu-Sprache-Stimme an",
+      "voice": "Stimme",
+      "voiceHint": "Diese Stimme wird verwendet, wenn Sie bei KI-Nachrichten auf \"Anhören\" klicken"
+    },
+    "language": {
+      "title": "Sprache & Region",
+      "description": "Legen Sie Ihre bevorzugte Sprache fest",
+      "label": "Sprache",
+      "hint": "Die Benutzeroberfläche und der KI-Assistent werden diese Sprache verwenden"
+    },
+    "notifications": {
+      "title": "Benachrichtigungen",
+      "description": "Verwalten Sie Ihre Benachrichtigungseinstellungen",
+      "taskReminders": "Aufgabenerinnerungen",
+      "taskRemindersHint": "Erhalten Sie Browser-Benachrichtigungen für Aufgabenerinnerungen"
+    },
+    "data": {
+      "title": "Ihre Daten",
+      "description": "Laden Sie einen JSON-Export Ihrer Daten herunter",
+      "download": "Meine Daten herunterladen",
+      "preparing": "Wird vorbereitet...",
+      "hint": "Dies erstellt eine lokale Datei auf diesem Gerät. Nichts wird hochgeladen.",
+      "downloadStarted": "Download gestartet",
+      "downloadingAs": "Ihre Daten werden als {{filename}} heruntergeladen"
+    },
+    "danger": {
+      "title": "Gefahrenzone",
+      "description": "Diese Aktion ist dauerhaft und kann nicht rückgängig gemacht werden.",
+      "deleteAccount": "Konto dauerhaft löschen",
+      "deleting": "Wird gelöscht...",
+      "deleteTitle": "Ihr Konto löschen?",
+      "deleteDescription": "Dies löscht Ihr Konto und alle Ihre Daten dauerhaft. Geben Sie zur Bestätigung DELETE ein.",
+      "typeDelete": "Geben Sie DELETE zur Bestätigung ein",
+      "deletePermanently": "Dauerhaft löschen",
+      "accountDeleted": "Konto gelöscht",
+      "accountDeletedDescription": "Ihr Konto wurde dauerhaft gelöscht."
+    },
+    "saving": "Wird gespeichert...",
+    "saveSettings": "Einstellungen Speichern",
+    "settingsSaved": "Einstellungen gespeichert",
+    "settingsSavedDescription": "Ihre Einstellungen wurden aktualisiert."
+  },
+  "auth": {
+    "welcome": "Willkommen bei Ihrem Virtuellen Assistenten",
+    "switchAccount": "Konto wechseln",
+    "signInToSwitch": "Melden Sie sich an, um zu diesem Konto zu wechseln.",
+    "welcomeBack": "Willkommen zurück! Melden Sie sich an, um fortzufahren.",
+    "createAccount": "Erstellen Sie Ihr Konto, um loszulegen.",
+    "username": "Benutzername",
+    "usernamePlaceholder": "Geben Sie Ihren Benutzernamen ein",
+    "email": "E-Mail",
+    "emailPlaceholder": "Geben Sie Ihre E-Mail ein",
+    "password": "Passwort",
+    "passwordPlaceholder": "Geben Sie Ihr Passwort ein",
+    "signIn": "Anmelden",
+    "signUp": "Registrieren",
+    "noAccount": "Kein Konto? Registrieren",
+    "hasAccount": "Bereits ein Konto? Anmelden",
+    "switchHint": "Sie können sich hier sicher anmelden, um Konten hinzuzufügen/zu wechseln, ohne sich abzumelden.",
+    "accountCreated": "Konto erstellt!",
+    "accountCreatedDescription": "Willkommen bei Ihrem Virtuellen Assistenten.",
+    "accountSwitched": "Konto gewechselt",
+    "accountSwitchedDescription": "Sie sind jetzt beim ausgewählten Konto angemeldet.",
+    "welcomeBackTitle": "Willkommen zurück!",
+    "welcomeBackDescription": "Sie haben sich erfolgreich angemeldet."
+  },
+  "conversations": {
+    "deleteTitle": "Unterhaltung löschen?",
+    "deleteDescription": "Dies löscht diese Unterhaltung und alle ihre Nachrichten dauerhaft.",
+    "deleted": "Unterhaltung gelöscht",
+    "deletedDescription": "Ihre Unterhaltung wurde entfernt."
+  },
+  "account": {
+    "currentAccount": "Aktuelles Konto",
+    "recentAccounts": "Letzte Konten",
+    "noRecentAccounts": "Keine anderen Konten auf diesem Gerät gespeichert.",
+    "addAccount": "Konto hinzufügen",
+    "signOut": "Abmelden",
+    "signingOut": "Wird abgemeldet...",
+    "removeFromDevice": "Von diesem Gerät entfernen"
+  }
+}

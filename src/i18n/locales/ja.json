@@ -1,0 +1,152 @@
+{
+  "common": {
+    "back": "戻る",
+    "cancel": "キャンセル",
+    "save": "保存",
+    "delete": "削除",
+    "loading": "読み込み中...",
+    "error": "エラー",
+    "success": "成功"
+  },
+  "nav": {
+    "virtualAssistant": "バーチャルアシスタント",
+    "aiCompanion": "あなたのAIコンパニオン",
+    "newChat": "新しいチャット",
+    "chatHistory": "チャット履歴",
+    "deleteAllHistory": "すべての履歴を削除",
+    "tasks": "タスク",
+    "settings": "設定",
+    "backToDashboard": "ダッシュボードに戻る"
+  },
+  "chat": {
+    "greeting": "今日は何をお手伝いしましょうか？",
+    "greetingSubtitle": "私はあなたのAIコンパニオンです。タスク、リマインダーなど、何でもお手伝いします。",
+    "stop": "停止",
+    "listen": "聴く",
+    "thinking": "考え中...",
+    "askAnything": "何でも聞いてください...",
+    "quickActions": {
+      "setReminder": "リマインダーを設定",
+      "checkWeather": "天気を確認",
+      "myTasks": "マイタスク"
+    },
+    "deleteAllTitle": "すべてのチャット履歴を削除しますか？",
+    "deleteAllDescription": "これにより、すべての会話とメッセージが完全に削除されます。この操作は元に戻せません。",
+    "deleteAll": "すべて削除",
+    "historyCleared": "履歴を消去しました",
+    "historyDescription": "すべての会話が削除されました。"
+  },
+  "tasks": {
+    "title": "タスク管理",
+    "addTask": "タスクを追加",
+    "createNew": "新しいタスクを作成",
+    "taskTitle": "タイトル",
+    "taskTitlePlaceholder": "タスクのタイトル",
+    "description": "説明",
+    "descriptionPlaceholder": "タスクの説明（任意）",
+    "dueDate": "期限",
+    "createTask": "タスクを作成",
+    "noTasks": "まだタスクがありません。最初のタスクを作成しましょう！",
+    "taskAdded": "タスクを追加しました",
+    "taskAddedWithReminder": "リマインダー付きでタスクを追加しました",
+    "taskCreated": "タスクが正常に作成されました。",
+    "taskReminder": "このタスクの期限が来たら通知されます！",
+    "taskDeleted": "タスクを削除しました",
+    "taskRemoved": "タスクが削除されました。"
+  },
+  "settings": {
+    "title": "設定",
+    "appearance": {
+      "title": "外観",
+      "description": "アプリの見た目をカスタマイズ",
+      "theme": "テーマ",
+      "light": "ライト",
+      "dark": "ダーク",
+      "auto": "自動",
+      "autoDescription": "テーマはシステム設定に従います",
+      "usingMode": "{{mode}}モードを使用中"
+    },
+    "voice": {
+      "title": "音声設定",
+      "description": "テキスト読み上げの音声をカスタマイズ",
+      "voice": "音声",
+      "voiceHint": "この音声はAIメッセージの「聴く」をクリックしたときに使用されます"
+    },
+    "language": {
+      "title": "言語と地域",
+      "description": "お好みの言語を設定",
+      "label": "言語",
+      "hint": "インターフェースとAIアシスタントはこの言語を使用します"
+    },
+    "notifications": {
+      "title": "通知",
+      "description": "通知設定を管理",
+      "taskReminders": "タスクリマインダー",
+      "taskRemindersHint": "タスクリマインダーのブラウザ通知を受け取る"
+    },
+    "data": {
+      "title": "あなたのデータ",
+      "description": "データのJSONエクスポートをダウンロード",
+      "download": "データをダウンロード",
+      "preparing": "準備中...",
+      "hint": "これはこのデバイスにローカルファイルを作成します。何もアップロードされません。",
+      "downloadStarted": "ダウンロードを開始しました",
+      "downloadingAs": "データを{{filename}}としてダウンロード中"
+    },
+    "danger": {
+      "title": "危険ゾーン",
+      "description": "この操作は永続的で、元に戻すことはできません。",
+      "deleteAccount": "アカウントを完全に削除",
+      "deleting": "削除中...",
+      "deleteTitle": "アカウントを削除しますか？",
+      "deleteDescription": "これにより、アカウントとすべてのデータが完全に削除されます。確認するには、下にDELETEと入力してください。",
+      "typeDelete": "確認のためDELETEと入力",
+      "deletePermanently": "完全に削除",
+      "accountDeleted": "アカウントを削除しました",
+      "accountDeletedDescription": "アカウントは完全に削除されました。"
+    },
+    "saving": "保存中...",
+    "saveSettings": "設定を保存",
+    "settingsSaved": "設定を保存しました",
+    "settingsSavedDescription": "設定が更新されました。"
+  },
+  "auth": {
+    "welcome": "バーチャルアシスタントへようこそ",
+    "switchAccount": "アカウントを切り替え",
+    "signInToSwitch": "このアカウントに切り替えるにはサインインしてください。",
+    "welcomeBack": "おかえりなさい！続けるにはサインインしてください。",
+    "createAccount": "始めるにはアカウントを作成してください。",
+    "username": "ユーザー名",
+    "usernamePlaceholder": "ユーザー名を入力",
+    "email": "メール",
+    "emailPlaceholder": "メールを入力",
+    "password": "パスワード",
+    "passwordPlaceholder": "パスワードを入力",
+    "signIn": "サインイン",
+    "signUp": "登録",
+    "noAccount": "アカウントがない場合は登録",
+    "hasAccount": "すでにアカウントがある場合はサインイン",
+    "switchHint": "ここで安全にサインインして、サインアウトせずにアカウントを追加/切り替えできます。",
+    "accountCreated": "アカウントを作成しました！",
+    "accountCreatedDescription": "バーチャルアシスタントへようこそ。",
+    "accountSwitched": "アカウントを切り替えました",
+    "accountSwitchedDescription": "選択したアカウントにサインインしました。",
+    "welcomeBackTitle": "おかえりなさい！",
+    "welcomeBackDescription": "サインインに成功しました。"
+  },
+  "conversations": {
+    "deleteTitle": "会話を削除しますか？",
+    "deleteDescription": "これにより、この会話とすべてのメッセージが完全に削除されます。",
+    "deleted": "会話を削除しました",
+    "deletedDescription": "会話が削除されました。"
+  },
+  "account": {
+    "currentAccount": "現在のアカウント",
+    "recentAccounts": "最近のアカウント",
+    "noRecentAccounts": "このデバイスに保存されている他のアカウントはありません。",
+    "addAccount": "アカウントを追加",
+    "signOut": "サインアウト",
+    "signingOut": "サインアウト中...",
+    "removeFromDevice": "このデバイスから削除"
+  }
+}

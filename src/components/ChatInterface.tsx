@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Send, Settings, ListTodo, MessageSquare, History, Volume2, VolumeX, Mic, MicOff, Trash2, Loader2 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
@@ -35,6 +36,7 @@ const cleanMessageContent = (content: string): string => {
 };
 
 const ChatInterface = () => {
+  const { t } = useTranslation();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -330,8 +332,8 @@ const ChatInterface = () => {
       });
     } else {
       toast({
-        title: "History cleared",
-        description: "All conversations have been deleted.",
+        title: t("chat.historyCleared"),
+        description: t("chat.historyDescription"),
       });
       handleNewConversation();
     }
@@ -367,9 +369,9 @@ const ChatInterface = () => {
 
         <div className="p-6 pb-4">
           <h1 className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent animate-gradient">
-            Virtual Assistant
+            {t("nav.virtualAssistant")}
           </h1>
-          <p className="text-xs text-muted-foreground mt-1">Your AI-powered companion</p>
+          <p className="text-xs text-muted-foreground mt-1">{t("nav.aiCompanion")}</p>
         </div>
 
         <nav className="space-y-1 flex-1 px-3">
@@ -379,7 +381,7 @@ const ChatInterface = () => {
             onClick={handleNewConversation}
           >
             <MessageSquare className="mr-2 h-4 w-4 group-hover:text-primary transition-colors" />
-            <span className="text-foreground">New Chat</span>
+            <span className="text-foreground">{t("nav.newChat")}</span>
           </Button>
           <Sheet open={showHistory} onOpenChange={setShowHistory}>
             <SheetTrigger asChild>
@@ -388,7 +390,7 @@ const ChatInterface = () => {
                 className="w-full justify-start group hover:bg-primary/10 transition-all"
               >
                 <History className="mr-2 h-4 w-4 group-hover:text-primary transition-colors" />
-                <span className="text-foreground">Chat History</span>
+                <span className="text-foreground">{t("nav.chatHistory")}</span>
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="w-80 p-0 bg-card border-primary/20">
@@ -405,7 +407,7 @@ const ChatInterface = () => {
             onClick={() => setDeleteAllDialogOpen(true)}
           >
             <Trash2 className="mr-2 h-4 w-4 group-hover:text-destructive transition-colors" />
-            <span className="text-foreground">Delete All History</span>
+            <span className="text-foreground">{t("nav.deleteAllHistory")}</span>
           </Button>
           <Button
             variant="ghost"
@@ -413,7 +415,7 @@ const ChatInterface = () => {
             onClick={() => navigate("/tasks")}
           >
             <ListTodo className="mr-2 h-4 w-4 group-hover:text-primary transition-colors" />
-            <span className="text-foreground">Tasks</span>
+            <span className="text-foreground">{t("nav.tasks")}</span>
           </Button>
           <Button
             variant="ghost"
@@ -421,7 +423,7 @@ const ChatInterface = () => {
             onClick={() => navigate("/settings")}
           >
             <Settings className="mr-2 h-4 w-4 group-hover:text-primary transition-colors" />
-            <span className="text-foreground">Settings</span>
+            <span className="text-foreground">{t("nav.settings")}</span>
           </Button>
         </nav>
       </div>
@@ -436,10 +438,10 @@ const ChatInterface = () => {
                   <MessageSquare className="w-16 h-16 text-primary-foreground" />
                 </div>
                 <h2 className="text-5xl font-bold mb-4 bg-gradient-primary bg-clip-text text-transparent animate-gradient">
-                  How can I assist you today?
+                  {t("chat.greeting")}
                 </h2>
                 <p className="text-muted-foreground text-lg">
-                  I'm your AI-powered companion, ready to help with tasks, reminders, and more.
+                  {t("chat.greetingSubtitle")}
                 </p>
               </div>
             )}
@@ -477,12 +479,12 @@ const ChatInterface = () => {
                         {isSpeaking === (message.id || `msg-${idx}`) ? (
                           <>
                             <VolumeX className="h-3.5 w-3.5 mr-1" />
-                            Stop
+                            {t("chat.stop")}
                           </>
                         ) : (
                           <>
                             <Volume2 className="h-3.5 w-3.5 mr-1" />
-                            Listen
+                            {t("chat.listen")}
                           </>
                         )}
                       </Button>
@@ -512,7 +514,7 @@ const ChatInterface = () => {
                 <div className="max-w-[75%] rounded-3xl p-5 bg-gradient-secondary border border-primary/20 backdrop-blur-xl">
                   <div className="flex items-center gap-2">
                     <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                    <span className="text-muted-foreground">Thinking...</span>
+                    <span className="text-muted-foreground">{t("chat.thinking")}</span>
                   </div>
                 </div>
               </div>
@@ -527,26 +529,26 @@ const ChatInterface = () => {
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => handleQuickAction("Set a reminder for tomorrow")}
+                onClick={() => handleQuickAction(t("chat.quickActions.setReminder"))}
                 className="border-primary/30 hover:bg-primary/10 hover:border-primary/50 transition-all"
               >
-                Set a reminder
+                {t("chat.quickActions.setReminder")}
               </Button>
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => handleQuickAction("What's the weather today?")}
+                onClick={() => handleQuickAction(t("chat.quickActions.checkWeather"))}
                 className="border-accent/30 hover:bg-accent/10 hover:border-accent/50 transition-all"
               >
-                Check weather
+                {t("chat.quickActions.checkWeather")}
               </Button>
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => handleQuickAction("Show my tasks")}
+                onClick={() => handleQuickAction(t("chat.quickActions.myTasks"))}
                 className="border-primary/30 hover:bg-primary/10 hover:border-primary/50 transition-all"
               >
-                My tasks
+                {t("chat.quickActions.myTasks")}
               </Button>
             </div>
             <div className="flex gap-3">
@@ -555,7 +557,7 @@ const ChatInterface = () => {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleKeyPress}
-                  placeholder="Ask me anything..."
+                  placeholder={t("chat.askAnything")}
                   className="min-h-[70px] resize-none rounded-2xl border-primary/20 bg-background/50 backdrop-blur-sm focus:border-primary/50 transition-all pr-4"
                   disabled={isLoading}
                 />
@@ -591,15 +593,15 @@ const ChatInterface = () => {
       <AlertDialog open={deleteAllDialogOpen} onOpenChange={setDeleteAllDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete all chat history?</AlertDialogTitle>
+            <AlertDialogTitle>{t("chat.deleteAllTitle")}</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete all your conversations and messages. This action cannot be undone.
+              {t("chat.deleteAllDescription")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
             <AlertDialogAction onClick={handleDeleteAllHistory} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              Delete All
+              {t("chat.deleteAll")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
