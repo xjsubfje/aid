@@ -1,0 +1,152 @@
+{
+  "common": {
+    "back": "Back",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success"
+  },
+  "nav": {
+    "virtualAssistant": "Virtual Assistant",
+    "aiCompanion": "Your AI-powered companion",
+    "newChat": "New Chat",
+    "chatHistory": "Chat History",
+    "deleteAllHistory": "Delete All History",
+    "tasks": "Tasks",
+    "settings": "Settings",
+    "backToDashboard": "Back to Dashboard"
+  },
+  "chat": {
+    "greeting": "How can I assist you today?",
+    "greetingSubtitle": "I'm your AI-powered companion, ready to help with tasks, reminders, and more.",
+    "stop": "Stop",
+    "listen": "Listen",
+    "thinking": "Thinking...",
+    "askAnything": "Ask me anything...",
+    "quickActions": {
+      "setReminder": "Set a reminder",
+      "checkWeather": "Check weather",
+      "myTasks": "My tasks"
+    },
+    "deleteAllTitle": "Delete all chat history?",
+    "deleteAllDescription": "This will permanently delete all your conversations and messages. This action cannot be undone.",
+    "deleteAll": "Delete All",
+    "historyCleared": "History cleared",
+    "historyDescription": "All conversations have been deleted."
+  },
+  "tasks": {
+    "title": "Task Management",
+    "addTask": "Add Task",
+    "createNew": "Create New Task",
+    "taskTitle": "Title",
+    "taskTitlePlaceholder": "Task title",
+    "description": "Description",
+    "descriptionPlaceholder": "Task description (optional)",
+    "dueDate": "Due Date",
+    "createTask": "Create Task",
+    "noTasks": "No tasks yet. Create your first task!",
+    "taskAdded": "Task added",
+    "taskAddedWithReminder": "Task added with reminder",
+    "taskCreated": "Your task has been created successfully.",
+    "taskReminder": "You'll be notified when this task is due!",
+    "taskDeleted": "Task deleted",
+    "taskRemoved": "Your task has been removed."
+  },
+  "settings": {
+    "title": "Settings",
+    "appearance": {
+      "title": "Appearance",
+      "description": "Customize how the app looks",
+      "theme": "Theme",
+      "light": "light",
+      "dark": "dark",
+      "auto": "auto",
+      "autoDescription": "Theme will match your system preference",
+      "usingMode": "Using {{mode}} mode"
+    },
+    "voice": {
+      "title": "Voice Settings",
+      "description": "Customize the text-to-speech voice",
+      "voice": "Voice",
+      "voiceHint": "This voice will be used when you click \"Listen\" on AI messages"
+    },
+    "language": {
+      "title": "Language & Region",
+      "description": "Set your preferred language",
+      "label": "Language",
+      "hint": "The interface and AI assistant will use this language"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "description": "Manage notification preferences",
+      "taskReminders": "Task Reminders",
+      "taskRemindersHint": "Receive browser notifications for task reminders"
+    },
+    "data": {
+      "title": "Your Data",
+      "description": "Download a JSON export of your data",
+      "download": "Download my data",
+      "preparing": "Preparing...",
+      "hint": "This creates a local file on this device. Nothing is uploaded.",
+      "downloadStarted": "Download started",
+      "downloadingAs": "Your data is downloading as {{filename}}"
+    },
+    "danger": {
+      "title": "Danger Zone",
+      "description": "This action is permanent and cannot be undone.",
+      "deleteAccount": "Delete account permanently",
+      "deleting": "Deleting...",
+      "deleteTitle": "Delete your account?",
+      "deleteDescription": "This will permanently delete your account and remove your data. To confirm, type DELETE below.",
+      "typeDelete": "Type DELETE to confirm",
+      "deletePermanently": "Delete permanently",
+      "accountDeleted": "Account deleted",
+      "accountDeletedDescription": "Your account has been permanently deleted."
+    },
+    "saving": "Saving...",
+    "saveSettings": "Save Settings",
+    "settingsSaved": "Settings saved",
+    "settingsSavedDescription": "Your preferences have been updated."
+  },
+  "auth": {
+    "welcome": "Welcome to Your Virtual Assistant",
+    "switchAccount": "Switch account",
+    "signInToSwitch": "Sign in to switch to this account.",
+    "welcomeBack": "Welcome back! Sign in to continue.",
+    "createAccount": "Create your account to get started.",
+    "username": "Username",
+    "usernamePlaceholder": "Enter your username",
+    "email": "Email",
+    "emailPlaceholder": "Enter your email",
+    "password": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "noAccount": "Don't have an account? Sign up",
+    "hasAccount": "Already have an account? Sign in",
+    "switchHint": "You can safely sign in here to add/switch accounts without signing out first.",
+    "accountCreated": "Account created!",
+    "accountCreatedDescription": "Welcome to your Virtual Assistant.",
+    "accountSwitched": "Account switched",
+    "accountSwitchedDescription": "You're now signed in to the selected account.",
+    "welcomeBackTitle": "Welcome back!",
+    "welcomeBackDescription": "You've successfully signed in."
+  },
+  "conversations": {
+    "deleteTitle": "Delete conversation?",
+    "deleteDescription": "This will permanently delete this conversation and all its messages.",
+    "deleted": "Conversation deleted",
+    "deletedDescription": "Your conversation has been removed."
+  },
+  "account": {
+    "currentAccount": "Current account",
+    "recentAccounts": "Recent accounts",
+    "noRecentAccounts": "No other accounts saved on this device.",
+    "addAccount": "Add account",
+    "signOut": "Sign out",
+    "signingOut": "Signing out...",
+    "removeFromDevice": "Remove from this device"
+  }
+}

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "./ui/button";
 import {
@@ -69,6 +70,7 @@ const saveAccountsToStorage = (accounts: StoredAccount[]) => {
 };
 
 export const AccountSwitcher = () => {
+  const { t } = useTranslation();
   const [currentUserId, setCurrentUserId] = useState<string>("");
   const [currentEmail, setCurrentEmail] = useState<string>("");
   const [currentUsername, setCurrentUsername] = useState<string>("");
@@ -185,16 +187,16 @@ export const AccountSwitcher = () => {
       // No refresh token stored for this account -> require password
       localStorage.setItem("switch_to_email", account.email);
       toast({
-        title: "Sign in required",
-        description: `Please sign in as ${account.username || account.email}.`,
+        title: t("auth.signIn"),
+        description: t("auth.signInToSwitch"),
       });
       navigate(`/auth?mode=switch&email=${encodeURIComponent(account.email)}`);
       return;
     }
 
     toast({
-      title: "Switching account",
-      description: `Switching to ${account.username || account.email}...`,
+      title: t("auth.accountSwitched"),
+      description: `${t("account.signingOut")}`,
     });
 
     // Use refresh token to avoid failures when the stored access token is expired.
@@ -208,8 +210,8 @@ export const AccountSwitcher = () => {
       localStorage.setItem("switch_to_email", account.email);
       toast({
         variant: "destructive",
-        title: "Quick switch failed",
-        description: "Please sign in again to continue.",
+        title: t("common.error"),
+        description: t("auth.signInToSwitch"),
       });
       navigate(`/auth?mode=switch&email=${encodeURIComponent(account.email)}`);
       return;
@@ -230,8 +232,8 @@ export const AccountSwitcher = () => {
     });
 
     toast({
-      title: "Account switched",
-      description: `You're now signed in as ${username || session.user.email}.`,
+      title: t("auth.accountSwitched"),
+      description: t("auth.accountSwitchedDescription"),
     });
 
     navigate("/");
@@ -240,8 +242,8 @@ export const AccountSwitcher = () => {
   const handleLogout = async () => {
     await supabase.auth.signOut();
     toast({
-      title: "Signed out",
-      description: "You have been signed out successfully.",
+      title: t("account.signOut"),
+      description: t("auth.welcomeBackDescription"),
     });
     navigate("/auth");
   };
@@ -270,14 +272,14 @@ export const AccountSwitcher = () => {
             </Avatar>
             <div className="flex-1 min-w-0 text-left">
               <p className="text-sm font-medium truncate text-foreground">{currentUsername || "User"}</p>
-              <p className="text-xs text-muted-foreground">Active</p>
+              <p className="text-xs text-muted-foreground">{t("account.currentAccount")}</p>
             </div>
           </div>
           <ChevronDown className="h-4 w-4 text-muted-foreground" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-72 bg-card/95 backdrop-blur-xl border-primary/20" align="start">
-        <DropdownMenuLabel className="text-foreground">Current Account</DropdownMenuLabel>
+        <DropdownMenuLabel className="text-foreground">{t("account.currentAccount")}</DropdownMenuLabel>
         <DropdownMenuItem disabled className="bg-gradient-secondary border border-primary/20">
           <Avatar className="h-8 w-8 mr-2">
             <AvatarFallback className="bg-gradient-primary text-primary-foreground text-xs">
@@ -290,7 +292,7 @@ export const AccountSwitcher = () => {
         {recentAccounts.length > 0 && (
           <>
             <DropdownMenuSeparator />
-            <DropdownMenuLabel className="text-foreground">Other Accounts</DropdownMenuLabel>
+            <DropdownMenuLabel className="text-foreground">{t("account.recentAccounts")}</DropdownMenuLabel>
             {recentAccounts.map((account) => {
               const initial = (account.username || account.email)?.[0]?.toUpperCase() || "U";
               const canQuickSwitch = Boolean(account.tokens?.refreshToken);
@@ -307,7 +309,7 @@ export const AccountSwitcher = () => {
                   <div className="flex flex-col">
                     <span className="text-foreground">{account.username || account.email}</span>
                     <span className="text-xs text-muted-foreground">
-                      {canQuickSwitch ? "Quick switch" : "Password required"}
+                      {canQuickSwitch ? t("auth.switchAccount") : t("auth.signIn")}
                     </span>
                   </div>
                 </DropdownMenuItem>
@@ -319,11 +321,11 @@ export const AccountSwitcher = () => {
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleAddAccount} className="cursor-pointer hover:bg-secondary/50">
           <Plus className="h-4 w-4 mr-2 text-primary" />
-          <span className="text-foreground">Add another account</span>
+          <span className="text-foreground">{t("account.addAccount")}</span>
         </DropdownMenuItem>
         <DropdownMenuItem onClick={handleLogout} className="cursor-pointer hover:bg-destructive/10">
           <LogOut className="h-4 w-4 mr-2 text-destructive" />
-          <span className="text-destructive">Sign out</span>
+          <span className="text-destructive">{t("account.signOut")}</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

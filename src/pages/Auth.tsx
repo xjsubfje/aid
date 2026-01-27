@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, Sparkles } from "lucide-react";
 
 const Auth = () => {
+  const { t } = useTranslation();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -78,8 +80,8 @@ const Auth = () => {
         if (error) throw error;
 
         toast({
-          title: mode === "switch" ? "Account switched" : "Welcome back!",
-          description: mode === "switch" ? "You're now signed in to the selected account." : "You've successfully signed in.",
+          title: mode === "switch" ? t("auth.accountSwitched") : t("auth.welcomeBackTitle"),
+          description: mode === "switch" ? t("auth.accountSwitchedDescription") : t("auth.welcomeBackDescription"),
         });
       } else {
         const { error } = await supabase.auth.signUp({
@@ -96,14 +98,14 @@ const Auth = () => {
         if (error) throw error;
 
         toast({
-          title: "Account created!",
-          description: "Welcome to your Virtual Assistant.",
+          title: t("auth.accountCreated"),
+          description: t("auth.accountCreatedDescription"),
         });
       }
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Error",
+        title: t("common.error"),
         description: error.message,
       });
     } finally {
@@ -123,24 +125,24 @@ const Auth = () => {
             </div>
           </div>
           <CardTitle className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-            {mode === "switch" ? "Switch account" : "Welcome to Your Virtual Assistant"}
+            {mode === "switch" ? t("auth.switchAccount") : t("auth.welcome")}
           </CardTitle>
           <CardDescription>
             {isLogin
               ? mode === "switch"
-                ? "Sign in to switch to this account."
-                : "Welcome back! Sign in to continue."
-              : "Create your account to get started."}
+                ? t("auth.signInToSwitch")
+                : t("auth.welcomeBack")
+              : t("auth.createAccount")}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleAuth} className="space-y-4">
             {!isLogin && (
               <div className="space-y-2">
-                <Label htmlFor="username">Username</Label>
+                <Label htmlFor="username">{t("auth.username")}</Label>
                 <Input
                   id="username"
-                  placeholder="Enter your username"
+                  placeholder={t("auth.usernamePlaceholder")}
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   className="bg-secondary/50 border-primary/20"
@@ -149,11 +151,11 @@ const Auth = () => {
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t("auth.email")}</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="Enter your email"
+                placeholder={t("auth.emailPlaceholder")}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -162,11 +164,11 @@ const Auth = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t("auth.password")}</Label>
               <Input
                 id="password"
                 type="password"
-                placeholder="Enter your password"
+                placeholder={t("auth.passwordPlaceholder")}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -181,7 +183,7 @@ const Auth = () => {
               disabled={loading}
             >
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {isLogin ? "Sign In" : "Sign Up"}
+              {isLogin ? t("auth.signIn") : t("auth.signUp")}
             </Button>
           </form>
 
@@ -191,13 +193,13 @@ const Auth = () => {
               onClick={() => setIsLogin(!isLogin)}
               className="text-primary hover:text-primary/80 transition-colors"
             >
-              {isLogin ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
+              {isLogin ? t("auth.noAccount") : t("auth.hasAccount")}
             </button>
           </div>
 
           {allowWhileSignedIn && (
             <div className="mt-4 text-center text-xs text-muted-foreground">
-              You can safely sign in here to add/switch accounts without signing out first.
+              {t("auth.switchHint")}
             </div>
           )}
         </CardContent>

@@ -1,0 +1,152 @@
+{
+  "common": {
+    "back": "返回",
+    "cancel": "取消",
+    "save": "保存",
+    "delete": "删除",
+    "loading": "加载中...",
+    "error": "错误",
+    "success": "成功"
+  },
+  "nav": {
+    "virtualAssistant": "虚拟助手",
+    "aiCompanion": "您的AI伙伴",
+    "newChat": "新对话",
+    "chatHistory": "对话历史",
+    "deleteAllHistory": "删除所有历史",
+    "tasks": "任务",
+    "settings": "设置",
+    "backToDashboard": "返回仪表板"
+  },
+  "chat": {
+    "greeting": "今天我能帮您什么？",
+    "greetingSubtitle": "我是您的AI伙伴，随时准备帮助您处理任务、提醒等事项。",
+    "stop": "停止",
+    "listen": "听",
+    "thinking": "思考中...",
+    "askAnything": "问我任何问题...",
+    "quickActions": {
+      "setReminder": "设置提醒",
+      "checkWeather": "查看天气",
+      "myTasks": "我的任务"
+    },
+    "deleteAllTitle": "删除所有对话历史？",
+    "deleteAllDescription": "这将永久删除您的所有对话和消息。此操作无法撤销。",
+    "deleteAll": "全部删除",
+    "historyCleared": "历史已清除",
+    "historyDescription": "所有对话已被删除。"
+  },
+  "tasks": {
+    "title": "任务管理",
+    "addTask": "添加任务",
+    "createNew": "创建新任务",
+    "taskTitle": "标题",
+    "taskTitlePlaceholder": "任务标题",
+    "description": "描述",
+    "descriptionPlaceholder": "任务描述（可选）",
+    "dueDate": "截止日期",
+    "createTask": "创建任务",
+    "noTasks": "还没有任务。创建您的第一个任务吧！",
+    "taskAdded": "任务已添加",
+    "taskAddedWithReminder": "任务已添加并设置提醒",
+    "taskCreated": "您的任务已成功创建。",
+    "taskReminder": "任务到期时会通知您！",
+    "taskDeleted": "任务已删除",
+    "taskRemoved": "您的任务已被删除。"
+  },
+  "settings": {
+    "title": "设置",
+    "appearance": {
+      "title": "外观",
+      "description": "自定义应用的外观",
+      "theme": "主题",
+      "light": "浅色",
+      "dark": "深色",
+      "auto": "自动",
+      "autoDescription": "主题将跟随系统设置",
+      "usingMode": "正在使用{{mode}}模式"
+    },
+    "voice": {
+      "title": "语音设置",
+      "description": "自定义文字转语音的声音",
+      "voice": "声音",
+      "voiceHint": "当您点击AI消息上的\"听\"时将使用此声音"
+    },
+    "language": {
+      "title": "语言和地区",
+      "description": "设置您的首选语言",
+      "label": "语言",
+      "hint": "界面和AI助手将使用此语言"
+    },
+    "notifications": {
+      "title": "通知",
+      "description": "管理通知偏好设置",
+      "taskReminders": "任务提醒",
+      "taskRemindersHint": "接收任务提醒的浏览器通知"
+    },
+    "data": {
+      "title": "您的数据",
+      "description": "下载数据的JSON导出",
+      "download": "下载我的数据",
+      "preparing": "准备中...",
+      "hint": "这会在此设备上创建一个本地文件。不会上传任何内容。",
+      "downloadStarted": "下载已开始",
+      "downloadingAs": "您的数据正在下载为{{filename}}"
+    },
+    "danger": {
+      "title": "危险区域",
+      "description": "此操作是永久的，无法撤销。",
+      "deleteAccount": "永久删除账户",
+      "deleting": "删除中...",
+      "deleteTitle": "删除您的账户？",
+      "deleteDescription": "这将永久删除您的账户和所有数据。要确认，请在下方输入DELETE。",
+      "typeDelete": "输入DELETE确认",
+      "deletePermanently": "永久删除",
+      "accountDeleted": "账户已删除",
+      "accountDeletedDescription": "您的账户已被永久删除。"
+    },
+    "saving": "保存中...",
+    "saveSettings": "保存设置",
+    "settingsSaved": "设置已保存",
+    "settingsSavedDescription": "您的偏好设置已更新。"
+  },
+  "auth": {
+    "welcome": "欢迎使用虚拟助手",
+    "switchAccount": "切换账户",
+    "signInToSwitch": "登录以切换到此账户。",
+    "welcomeBack": "欢迎回来！请登录继续。",
+    "createAccount": "创建账户开始使用。",
+    "username": "用户名",
+    "usernamePlaceholder": "输入您的用户名",
+    "email": "邮箱",
+    "emailPlaceholder": "输入您的邮箱",
+    "password": "密码",
+    "passwordPlaceholder": "输入您的密码",
+    "signIn": "登录",
+    "signUp": "注册",
+    "noAccount": "没有账户？注册",
+    "hasAccount": "已有账户？登录",
+    "switchHint": "您可以安全地在此登录以添加/切换账户，无需先退出。",
+    "accountCreated": "账户已创建！",
+    "accountCreatedDescription": "欢迎使用虚拟助手。",
+    "accountSwitched": "账户已切换",
+    "accountSwitchedDescription": "您现在已登录到所选账户。",
+    "welcomeBackTitle": "欢迎回来！",
+    "welcomeBackDescription": "您已成功登录。"
+  },
+  "conversations": {
+    "deleteTitle": "删除对话？",
+    "deleteDescription": "这将永久删除此对话及其所有消息。",
+    "deleted": "对话已删除",
+    "deletedDescription": "您的对话已被删除。"
+  },
+  "account": {
+    "currentAccount": "当前账户",
+    "recentAccounts": "最近账户",
+    "noRecentAccounts": "此设备上没有保存其他账户。",
+    "addAccount": "添加账户",
+    "signOut": "退出",
+    "signingOut": "退出中...",
+    "removeFromDevice": "从此设备移除"
+  }
+}
