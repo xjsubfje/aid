@@ -177,14 +177,33 @@ export const AccountSwitcher = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Save current session before switching away
+  const saveCurrentSession = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.user?.id && session.user.email) {
+      const username = await fetchUsername(session.user.id, session.user.email);
+      upsertAccount({
+        userId: session.user.id,
+        email: session.user.email,
+        username,
+        lastUsed: new Date().toISOString(),
+        tokens: {
+          accessToken: session.access_token,
+          refreshToken: session.refresh_token,
+          expiresAt: session.expires_at,
+        },
+      });
+    }
+  };
+
   const handleSwitchAccount = async (account: StoredAccount) => {
     if (!account?.email) return;
     if (account.email === currentEmail) return;
 
     const refreshToken = account.tokens?.refreshToken;
+    const accessToken = account.tokens?.accessToken;
 
     if (!refreshToken) {
-      // No refresh token stored for this account -> require password
       localStorage.setItem("switch_to_email", account.email);
       toast({
         title: t("auth.signIn"),
@@ -194,19 +213,38 @@ export const AccountSwitcher = () => {
       return;
     }
 
+    // Save current account's session before switching
+    await saveCurrentSession();
+
     toast({
       title: t("auth.accountSwitched"),
-      description: `${t("account.signingOut")}`,
+      description: t("account.signingOut"),
     });
 
-    // Use refresh token to avoid failures when the stored access token is expired.
-    const { data, error } = await supabase.auth.refreshSession({
-      refresh_token: refreshToken,
-    });
+    // Try setSession first (works if tokens are still valid)
+    let session = null;
+    let switchError = null;
 
-    const session = data?.session;
+    if (accessToken) {
+      const { data, error } = await supabase.auth.setSession({
+        access_token: accessToken,
+        refresh_token: refreshToken,
+      });
+      session = data?.session;
+      switchError = error;
+    }
 
-    if (error || !session?.user?.id || !session.user.email) {
+    // If setSession failed, try refreshSession
+    if (!session) {
+      const { data, error } = await supabase.auth.refreshSession({
+        refresh_token: refreshToken,
+      });
+      session = data?.session;
+      switchError = error;
+    }
+
+    if (switchError || !session?.user?.id || !session.user.email) {
+      console.error("Account switch failed:", switchError);
       localStorage.setItem("switch_to_email", account.email);
       toast({
         variant: "destructive",
@@ -236,16 +274,32 @@ export const AccountSwitcher = () => {
       description: t("auth.accountSwitchedDescription"),
     });
 
-    navigate("/");
+    // Force page reload to reset all state
+    window.location.href = "/";
   };
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error("Sign out error:", error);
+      }
+    } catch (e) {
+      console.error("Sign out exception:", e);
+    }
+    
+    // Clear current user state regardless of signOut result
+    setCurrentUserId("");
+    setCurrentEmail("");
+    setCurrentUsername("");
+    
     toast({
       title: t("account.signOut"),
       description: t("auth.welcomeBackDescription"),
     });
-    navigate("/auth");
+    
+    // Force navigation to auth
+    window.location.href = "/auth";
   };
 
   const handleAddAccount = () => {
