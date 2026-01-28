@@ -222,11 +222,22 @@ The task creation block will be hidden from the user - they will only see your c
 
     (async () => {
       try {
-        while (true) {
+        let streamDone = false;
+        while (!streamDone) {
           const { done, value } = await reader.read();
           if (done) break;
           
           const chunk = decoder.decode(value, { stream: true });
+          
+          // Check if chunk contains [DONE] signal
+          if (chunk.includes('[DONE]')) {
+            // Write the chunk but mark stream as done
+            await writer.write(value);
+            fullResponse += chunk;
+            streamDone = true;
+            break;
+          }
+          
           fullResponse += chunk;
           await writer.write(value);
         }
@@ -262,7 +273,11 @@ The task creation block will be hidden from the user - they will only see your c
         await writer.close();
       } catch (error) {
         console.error("Stream processing error:", error);
-        await writer.abort(error);
+        try {
+          await writer.close();
+        } catch {
+          // Ignore close errors
+        }
       }
     })();
 
