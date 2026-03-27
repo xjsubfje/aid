@@ -302,8 +302,9 @@ export const AccountSwitcher = () => {
     window.location.href = "/auth";
   };
 
-  const handleAddAccount = () => {
-    // Important: don't sign out. We want the existing session to remain valid so we can quick switch back.
+  const handleAddAccount = async () => {
+    // Save current session tokens before navigating away so we can quick-switch back.
+    await saveCurrentSession();
     navigate("/auth?mode=add");
   };
 
